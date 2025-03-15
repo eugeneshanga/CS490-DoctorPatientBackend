@@ -1,0 +1,6 @@
+# Python Virtual Env
+venv
+
+# Semantic release stuff
+node_modules/
+package-lock.json
