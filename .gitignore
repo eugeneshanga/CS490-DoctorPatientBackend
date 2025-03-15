@@ -1,6 +1,10 @@
 # Python Virtual Env
 venv
 
+# pycache
+__pycache__
+
 # Semantic release stuff
 node_modules/
 package-lock.json
+
