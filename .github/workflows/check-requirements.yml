@@ -33,6 +33,9 @@ jobs:
           source venv/bin/activate
           pip freeze > requirements_new.txt
           if ! diff -q requirements.txt requirements_new.txt; then
+            cat requirements.txt
+            echo
+            cat requirements_new.txt
             echo "❌ ERROR: requirements.txt is outdated! Run 'pip freeze > requirements.txt' and commit the changes."
             exit 1
           else
