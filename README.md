@@ -33,6 +33,12 @@ Install Flask
 
 Install Dependencies
 
+`pip install flask-cors`
+
+`pip install mysql-connector-python`
+
+`pip install pytest`
+
 `pip install -r requirements.txt`
 
 
