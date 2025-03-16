@@ -2,38 +2,17 @@
 CREATE DATABASE IF NOT EXISTS weight_loss_clinic;
 USE weight_loss_clinic;
 
--- Users table (handles login credentials)
-CREATE TABLE users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    user_type ENUM('patient', 'doctor', 'pharmacy_admin') NOT NULL
-);
-
--- Pharmacies table (moved up to avoid reference issues)
-CREATE TABLE pharmacies (
-    pharmacy_id INT AUTO_INCREMENT PRIMARY KEY,
-    admin_user_id INT UNIQUE NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    address TEXT NOT NULL,
-    zip_code VARCHAR(5),
-    phone_number VARCHAR(20) NOT NULL,
-    license_number VARCHAR(50) UNIQUE NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (admin_user_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
-
--- Patients table
+-- Patients table (handles login credentials)
 CREATE TABLE patients (
     patient_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     address TEXT,
     phone_number VARCHAR(20),
     zip_code VARCHAR(5),
-    is_active BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 -- Medical Metrics table
@@ -47,24 +26,24 @@ CREATE TABLE medical_metrics (
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
 );
 
--- Doctors table
+-- Doctors table (handles login credentials)
 CREATE TABLE doctors (
     doctor_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     license_number VARCHAR(50) UNIQUE NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     address TEXT,
     phone_number VARCHAR(20),
     ssn VARCHAR(11) UNIQUE NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 -- Doctor-Patient Relationship
 CREATE TABLE doctor_patient (
     doctor_id INT,
-    patient_id INT UNIQUE,
+    patient_id INT,
     assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (doctor_id, patient_id),
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE,
@@ -105,6 +84,31 @@ CREATE TABLE payments_doctor (
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
 );
 
+-- Pharmacies table (No direct link to admins)
+CREATE TABLE pharmacies (
+    pharmacy_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    address TEXT NOT NULL,
+    zip_code VARCHAR(5),
+    phone_number VARCHAR(20) NOT NULL,
+    license_number VARCHAR(50) UNIQUE NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+-- Pharmacy Admin table (Each admin is linked to a pharmacy)
+CREATE TABLE pharmacy_admins (
+    admin_id INT AUTO_INCREMENT PRIMARY KEY,
+    pharmacy_id INT NOT NULL,  
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20),
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(pharmacy_id) ON DELETE CASCADE
+);
+
+
 -- Payments table (Patient to Pharmacy)
 CREATE TABLE payments_pharmacy (
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -126,7 +130,7 @@ CREATE TABLE patient_meal_plans (
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
 );
 
--- Pharmacy Inventory Table (Simulated 5 Drugs per Pharmacy)
+-- Pharmacy Inventory Table
 CREATE TABLE pharmacy_inventory (
     inventory_id INT AUTO_INCREMENT PRIMARY KEY,
     pharmacy_id INT NOT NULL,
