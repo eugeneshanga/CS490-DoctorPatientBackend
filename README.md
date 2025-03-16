@@ -37,5 +37,19 @@ Install Dependencies
 `pip install mysql-connector-python`
 `pip install -r requirements.txt`
 
+### Repo Organization (Updated: Nick on 3/16)
 
-View the docs folder for more information
+- `.github/` - contains CI workflows
+- `blueprints/` - contains python/flask endpoint files
+- `database/` - Contains database schema and mock data
+- `docs/` - More Information on tools and other things
+- `.flake8` - config for flake8 linter - see lint doc for more details
+- `.gitignore` - self explanatory google if confused
+- `README.md` - The file you are ready now
+- `app.py` - Basically our `main` file. Starts the project, registers the blueprints
+- `config.py` - db credentials for local development. This is rlly insecure lol, I dont rlly know how this is normally handled so if anyone has a better idea pls share
+- `package.json` - this is for semantic release, not rlly sure if we will use it or not
+- `requirements.txt` - python dependency graph
+
+
+### View the docs folder for more information
