@@ -22,5 +22,5 @@ jobs:
         run: pip install flake8
 
       - name: Run Flake8 (PEP 8 Checks)
-        run: flake8 *.py
+        run: flake8 *.py ./blueprints/*.py
 

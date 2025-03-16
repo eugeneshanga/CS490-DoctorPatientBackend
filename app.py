@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS  # CORS for handling cross-origin requests
 import mysql.connector
 from config import DB_CONFIG
-from registration import registration_bp
+from blueprints.registration import registration_bp
 
 app = Flask(__name__)
 CORS(app)
