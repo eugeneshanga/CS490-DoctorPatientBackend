@@ -104,4 +104,3 @@ def register_doctor():
             cursor.close()
         if connection:
             connection.close()
-
