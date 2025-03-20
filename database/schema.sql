@@ -169,3 +169,6 @@ CREATE TABLE doctor_ratings (
     average_rating FLOAT DEFAULT 0,  -- avearge
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
 );
+
+
+ALTER TABLE appointments MODIFY COLUMN status ENUM('scheduled', 'accepted', 'rejected', 'completed', 'canceled') NOT NULL DEFAULT 'scheduled';
