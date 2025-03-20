@@ -148,3 +148,24 @@ CREATE TABLE discussion_board (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
 );
+
+CREATE TABLE ratings (
+    rating_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    appointment_id INT NOT NULL,
+    rating INT CHECK (rating BETWEEN 0 AND 5),  -- Rating 0-5
+    review TEXT,  -- 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE,
+    FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id) ON DELETE CASCADE,
+    UNIQUE (patient_id, doctor_id, appointment_id)  -- Make sure that a patient can only rate a given appointment once
+);
+
+CREATE TABLE doctor_ratings (
+    doctor_id INT PRIMARY KEY,
+    total_ratings INT DEFAULT 0,  -- how many time got rate
+    average_rating FLOAT DEFAULT 0,  -- avearge
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
+);
