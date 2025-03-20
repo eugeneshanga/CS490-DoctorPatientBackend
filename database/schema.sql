@@ -154,7 +154,7 @@ CREATE TABLE ratings (
     patient_id INT NOT NULL,
     doctor_id INT NOT NULL,
     appointment_id INT NOT NULL,
-    rating INT CHECK (rating BETWEEN 0 AND 5),  -- Rating 0-5
+    rating DECIMAL(2,1) CHECK (rating BETWEEN 0.0 AND 5.0),
     review TEXT,  -- 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
