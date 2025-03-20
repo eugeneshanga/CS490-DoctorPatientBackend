@@ -172,3 +172,16 @@ CREATE TABLE doctor_ratings (
 
 
 ALTER TABLE appointments MODIFY COLUMN status ENUM('scheduled', 'accepted', 'rejected', 'completed', 'canceled') NOT NULL DEFAULT 'scheduled';
+
+
+CREATE TABLE post_replies (
+    reply_id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    patient_id INT NOT NULL,
+    reply_content TEXT NOT NULL,
+    replied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES discussion_board(post_id) ON DELETE CASCADE,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
+);
+
+
