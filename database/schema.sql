@@ -2,17 +2,52 @@
 CREATE DATABASE IF NOT EXISTS weight_loss_clinic;
 USE weight_loss_clinic;
 
--- Patients table (handles login credentials)
-CREATE TABLE patients (
-    patient_id INT AUTO_INCREMENT PRIMARY KEY,
+-- Users table (abstraction for all user types)
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
+    user_type ENUM('patient', 'doctor', 'pharmacy') NOT NULL
+);
+
+-- Patients table
+CREATE TABLE patients (
+    patient_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNIQUE NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     address TEXT,
     phone_number VARCHAR(20),
     zip_code VARCHAR(5),
-    is_active BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Doctors table
+CREATE TABLE doctors (
+    doctor_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNIQUE NOT NULL,
+    license_number VARCHAR(50) UNIQUE NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    address TEXT,
+    phone_number VARCHAR(20),
+    ssn VARCHAR(11) UNIQUE NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Pharmacies table (handles login via users table)
+CREATE TABLE pharmacies (
+    pharmacy_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    address TEXT NOT NULL,
+    zip_code VARCHAR(5),
+    phone_number VARCHAR(20) NOT NULL,
+    license_number VARCHAR(50) UNIQUE NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- Medical Metrics table
@@ -24,20 +59,6 @@ CREATE TABLE medical_metrics (
     caloric_intake INT,
     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
-);
-
--- Doctors table (handles login credentials)
-CREATE TABLE doctors (
-    doctor_id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    license_number VARCHAR(50) UNIQUE NOT NULL,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    address TEXT,
-    phone_number VARCHAR(20),
-    ssn VARCHAR(11) UNIQUE NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE
 );
 
 -- Doctor-Patient Relationship
@@ -56,7 +77,7 @@ CREATE TABLE appointments (
     doctor_id INT NOT NULL,
     patient_id INT NOT NULL,
     appointment_time DATETIME NOT NULL,
-    status ENUM('scheduled', 'completed', 'canceled') DEFAULT 'scheduled',
+    status ENUM('scheduled', 'accepted', 'rejected', 'completed', 'canceled') NOT NULL DEFAULT 'scheduled',
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE,
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
 );
@@ -83,31 +104,6 @@ CREATE TABLE payments_doctor (
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE,
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
 );
-
--- Pharmacies table (No direct link to admins)
-CREATE TABLE pharmacies (
-    pharmacy_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    address TEXT NOT NULL,
-    zip_code VARCHAR(5),
-    phone_number VARCHAR(20) NOT NULL,
-    license_number VARCHAR(50) UNIQUE NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE
-);
-
--- Pharmacy Admin table (Each admin is linked to a pharmacy)
-CREATE TABLE pharmacy_admins (
-    admin_id INT AUTO_INCREMENT PRIMARY KEY,
-    pharmacy_id INT NOT NULL,  
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    phone_number VARCHAR(20),
-    is_active BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(pharmacy_id) ON DELETE CASCADE
-);
-
 
 -- Payments table (Patient to Pharmacy)
 CREATE TABLE payments_pharmacy (
@@ -149,29 +145,39 @@ CREATE TABLE discussion_board (
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
 );
 
+-- Replies to Discussion Board posts
+CREATE TABLE post_replies (
+    reply_id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    patient_id INT NOT NULL,
+    reply_content TEXT NOT NULL,
+    replied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES discussion_board(post_id) ON DELETE CASCADE,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
+);
+
+-- Ratings table
 CREATE TABLE ratings (
     rating_id INT AUTO_INCREMENT PRIMARY KEY,
     patient_id INT NOT NULL,
     doctor_id INT NOT NULL,
     appointment_id INT NOT NULL,
     rating DECIMAL(2,1) CHECK (rating BETWEEN 0.0 AND 5.0),
-    review TEXT,  -- 
+    review TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE,
     FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id) ON DELETE CASCADE,
-    UNIQUE (patient_id, doctor_id, appointment_id)  -- Make sure that a patient can only rate a given appointment once
+    UNIQUE (patient_id, doctor_id, appointment_id)
 );
 
+-- Aggregated Doctor Ratings table
 CREATE TABLE doctor_ratings (
     doctor_id INT PRIMARY KEY,
-    total_ratings INT DEFAULT 0,  -- how many time got rate
-    average_rating FLOAT DEFAULT 0,  -- avearge
+    total_ratings INT DEFAULT 0,
+    average_rating FLOAT DEFAULT 0,
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
 );
-
-
-ALTER TABLE appointments MODIFY COLUMN status ENUM('scheduled', 'accepted', 'rejected', 'completed', 'canceled') NOT NULL DEFAULT 'scheduled';
 
 
 CREATE TABLE post_replies (
@@ -184,6 +190,7 @@ CREATE TABLE post_replies (
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
 );
 
+-- Prescriptions table
 CREATE TABLE prescriptions (
     prescription_id INT AUTO_INCREMENT PRIMARY KEY,
     doctor_id INT NOT NULL,
@@ -198,4 +205,5 @@ CREATE TABLE prescriptions (
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
     FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(pharmacy_id) ON DELETE SET NULL
 );
+
 
