@@ -179,17 +179,6 @@ CREATE TABLE doctor_ratings (
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
 );
 
-
-CREATE TABLE post_replies (
-    reply_id INT AUTO_INCREMENT PRIMARY KEY,
-    post_id INT NOT NULL,
-    patient_id INT NOT NULL,
-    reply_content TEXT NOT NULL,
-    replied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (post_id) REFERENCES discussion_board(post_id) ON DELETE CASCADE,
-    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
-);
-
 -- Prescriptions table
 CREATE TABLE prescriptions (
     prescription_id INT AUTO_INCREMENT PRIMARY KEY,
