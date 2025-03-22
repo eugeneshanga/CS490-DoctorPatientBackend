@@ -14,7 +14,7 @@ registration_bp = Blueprint('registration', __name__)
 def register_patient():
     data = request.get_json()
 
-    # Extract fields from the incoming JSON
+    # Extract fields
     email = data.get('email')
     password = data.get('password')
     first_name = data.get('first_name')
@@ -28,26 +28,31 @@ def register_patient():
         return jsonify({"error": "Missing required fields"}), 400
 
     try:
-        # Connect to the MySQL database
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor()
 
-        # Insert the new patient record into the database.
-        query = (
-            "INSERT INTO patients "
-            "(email, password_hash, first_name, last_name, "
-            "address, phone_number, zip_code)"
-            "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        # Step 1: Insert into users
+        insert_user = (
+            "INSERT INTO users (email, password_hash, user_type) "
+            "VALUES (%s, %s, 'patient')"
         )
-        values = (email, password, first_name,
-                  last_name, address, phone_number, zip_code)
-        cursor.execute(query, values)
-        connection.commit()
+        cursor.execute(insert_user, (email, password))
+        user_id = cursor.lastrowid
 
+        # Step 2: Insert into patients
+        insert_patient = (
+            "INSERT INTO patients (user_id, first_name, last_name, address, phone_number, zip_code) "
+            "VALUES (%s, %s, %s, %s, %s, %s)"
+        )
+        values = (user_id, first_name, last_name, address, phone_number, zip_code)
+        cursor.execute(insert_patient, values)
+
+        connection.commit()
         return jsonify({"message": "Patient registered successfully"}), 201
 
     except Error as err:
         print("Database error:", err)
+        connection.rollback()
         return jsonify({"error": str(err)}), 500
 
     finally:
@@ -64,7 +69,7 @@ def register_patient():
 def register_doctor():
     data = request.get_json()
 
-    # Extract fields from the incoming JSON
+    # Extract fields
     email = data.get('email')
     password = data.get('password')
     license_number = data.get('license_number')
@@ -75,28 +80,35 @@ def register_doctor():
     ssn = data.get('ssn')
 
     # Validate required fields
-    if not email or not password or not license_number:
-        if not first_name or not last_name or not ssn:
-            return jsonify({"error": "Missing required fields"}), 400
+    if not email or not password or not license_number or not first_name or not last_name or not ssn:
+        return jsonify({"error": "Missing required fields"}), 400
 
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor()
 
-        query = (
-            "INSERT INTO doctors "
-            "(email, password_hash, license_number, "
-            "first_name, last_name, address, phone_number, ssn)"
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        # Step 1: Insert into users
+        insert_user = (
+            "INSERT INTO users (email, password_hash, user_type) "
+            "VALUES (%s, %s, 'doctor')"
         )
-        values = (email, password, license_number, first_name, last_name, address, phone_number, ssn)
-        cursor.execute(query, values)
-        connection.commit()
+        cursor.execute(insert_user, (email, password))
+        user_id = cursor.lastrowid
 
+        # Step 2: Insert into doctors
+        insert_doctor = (
+            "INSERT INTO doctors (user_id, license_number, first_name, last_name, address, phone_number, ssn) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        )
+        values = (user_id, license_number, first_name, last_name, address, phone_number, ssn)
+        cursor.execute(insert_doctor, values)
+
+        connection.commit()
         return jsonify({"message": "Doctor registered successfully"}), 201
 
     except Error as err:
         print("Database error:", err)
+        connection.rollback()
         return jsonify({"error": str(err)}), 500
 
     finally:
