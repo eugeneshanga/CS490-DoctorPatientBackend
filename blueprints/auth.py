@@ -3,7 +3,10 @@ import mysql.connector
 import bcrypt
 from config import DB_CONFIG
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
+
 @auth_bp.route('/login', methods=['POST'])
+
+
 def login():
     data = request.get_json()
     email = data.get('email')
@@ -18,7 +21,7 @@ def login():
         """, (email,))
         user = cursor.fetchone()
         if not user:
-            return jsonify({"error": "Invalid email or password"}), 401    
+            return jsonify({"error": "Invalid email or password"}), 401
         if not bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
             return jsonify({"error": "Invalid email or password"}), 401
         return jsonify({
