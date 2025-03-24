@@ -36,7 +36,6 @@ def rate_doctor():
         if not appointment:
             print(f"❌ Appointment {appointment_id} not found for patient {patient_id} and doctor {doctor_id}")
             return jsonify({"error": "Appointment not found"}), 404
-            
         if appointment[0].lower() != "completed":
             print(f"❌ Appointment {appointment_id} is not completed (current status: {appointment[0]})")
             return jsonify({"error": "You can only rate after a completed appointment"}), 403
