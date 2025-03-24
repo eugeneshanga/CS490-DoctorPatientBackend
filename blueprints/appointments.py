@@ -4,6 +4,7 @@ from config import DB_CONFIG
 
 appointments_bp = Blueprint("appointments", __name__, url_prefix="/api/appointments")
 
+
 @appointments_bp.route('/create', methods=['POST'])
 def create_appointment():
     data = request.get_json()
@@ -34,10 +35,6 @@ def create_appointment():
         cursor.close()
         connection.close()
 
-
-
-
-
 @appointments_bp.route('/confirm/<int:appointment_id>', methods=['POST'])
 def confirm_appointment(appointment_id):
     try:
@@ -56,6 +53,7 @@ def confirm_appointment(appointment_id):
 
         print("✅ Appointment found, current status:", appointment[1])
 
+
         cursor.execute("""
             UPDATE appointments SET status = 'completed' WHERE appointment_id = %s
         """, (appointment_id,))
@@ -69,10 +67,6 @@ def confirm_appointment(appointment_id):
     finally:
         cursor.close()
         connection.close()
-
-
-
-
 
 @appointments_bp.route('/all', methods=['GET'])
 def get_all_appointments():
@@ -108,9 +102,6 @@ def get_all_appointments():
     finally:
         cursor.close()
         connection.close()
-
-
-
 
 @appointments_bp.route('/decision/<int:appointment_id>', methods=['POST'])
 def doctor_decision(appointment_id):
@@ -151,8 +142,6 @@ def doctor_decision(appointment_id):
     finally:
         cursor.close()
         connection.close()
-
-
 
 @appointments_bp.route('/cancel/<int:appointment_id>', methods=['POST'])
 def cancel_appointment(appointment_id):
