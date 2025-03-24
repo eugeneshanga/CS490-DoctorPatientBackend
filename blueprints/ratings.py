@@ -37,13 +37,12 @@ def rate_doctor():
             print(f"❌ Appointment {appointment_id} not found for patient {patient_id} and doctor {doctor_id}")  # ✅ 记录错误
             return jsonify({"error": "Appointment not found"}), 404
 
-        if appointment[0].lower() != "completed":  
+        if appointment[0].lower() != "completed":
             print(f"❌ Appointment {appointment_id} is not completed (current status: {appointment[0]})")  # ✅ 调试
             return jsonify({"error": "You can only rate after a completed appointment"}), 403
 
         print(f"✅ Appointment {appointment_id} is completed. Proceeding with rating.")  # ✅ 继续
 
-        
         cursor.execute("""
             SELECT * FROM ratings WHERE patient_id = %s AND doctor_id = %s AND appointment_id = %s
         """, (patient_id, doctor_id, appointment_id))
@@ -51,14 +50,14 @@ def rate_doctor():
         if existing_rating:
             return jsonify({"error": "You have already rated this appointment"}), 409
 
-        # 
+        #
         cursor.execute("""
             INSERT INTO ratings (patient_id, doctor_id, appointment_id, rating, review)
             VALUES (%s, %s, %s, %s, %s)
         """, (patient_id, doctor_id, appointment_id, rating, review))
         connection.commit()
 
-        # 
+        #
         cursor.execute("""
             INSERT INTO doctor_ratings (doctor_id, total_ratings, average_rating)
             VALUES (%s, 1, %s)
