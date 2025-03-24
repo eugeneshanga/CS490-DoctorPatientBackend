@@ -24,7 +24,7 @@ def rate_doctor():
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor()
 
-        print(f"Checking appointment {appointment_id} for patient {patient_id} and doctor {doctor_id}")  # ✅ 调试输出
+        print(f"Checking appointment {appointment_id} for patient {patient_id} and doctor {doctor_id}")
 
         # make sure the patient already did apointment
         cursor.execute("""
@@ -34,14 +34,14 @@ def rate_doctor():
         appointment = cursor.fetchone()
 
         if not appointment:
-            print(f"❌ Appointment {appointment_id} not found for patient {patient_id} and doctor {doctor_id}")  # ✅ 记录错误
+            print(f"❌ Appointment {appointment_id} not found for patient {patient_id} and doctor {doctor_id}")
             return jsonify({"error": "Appointment not found"}), 404
-
+            
         if appointment[0].lower() != "completed":
-            print(f"❌ Appointment {appointment_id} is not completed (current status: {appointment[0]})")  # ✅ 调试
+            print(f"❌ Appointment {appointment_id} is not completed (current status: {appointment[0]})")
             return jsonify({"error": "You can only rate after a completed appointment"}), 403
 
-        print(f"✅ Appointment {appointment_id} is completed. Proceeding with rating.")  # ✅ 继续
+        print(f"✅ Appointment {appointment_id} is completed. Proceeding with rating.")
 
         cursor.execute("""
             SELECT * FROM ratings WHERE patient_id = %s AND doctor_id = %s AND appointment_id = %s
