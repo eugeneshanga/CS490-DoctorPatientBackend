@@ -3,11 +3,13 @@ from flask_cors import CORS  # CORS for handling cross-origin requests
 import mysql.connector
 from config import DB_CONFIG
 from blueprints.registration import registration_bp
+from blueprints.patientDashboard import patient_dashboard_bp
 
 app = Flask(__name__)
 CORS(app)
 
 app.register_blueprint(registration_bp)
+app.register_blueprint(patient_dashboard_bp)
 
 
 # First route!
