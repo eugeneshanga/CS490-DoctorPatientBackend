@@ -56,9 +56,9 @@ def get_all_chats():
         cursor.close()
         connection.close()
 
+
 # get specific doctor and patient chat detail
 @chat_bp.route('/conversation/<int:patient_id>/<int:doctor_id>', methods=['GET'])
-
 def get_chat_between_patient_and_doctor(patient_id, doctor_id):
     try:
         connection = mysql.connector.connect(**DB_CONFIG)

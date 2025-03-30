@@ -35,6 +35,7 @@ def create_appointment():
         cursor.close()
         connection.close()
 
+
 @appointments_bp.route('/confirm/<int:appointment_id>', methods=['POST'])
 def confirm_appointment(appointment_id):
     try:
@@ -48,11 +49,10 @@ def confirm_appointment(appointment_id):
         appointment = cursor.fetchone()
 
         if not appointment:
-            print("❌ Appointment not found:", appointment_id)  #wrong apopintment
+            print("❌ Appointment not found:", appointment_id)  # wrong apopintment
             return jsonify({"error": "Appointment not found"}), 404
 
         print("✅ Appointment found, current status:", appointment[1])
-
 
         cursor.execute("""
             UPDATE appointments SET status = 'completed' WHERE appointment_id = %s
@@ -68,6 +68,7 @@ def confirm_appointment(appointment_id):
         cursor.close()
         connection.close()
 
+
 @appointments_bp.route('/all', methods=['GET'])
 def get_all_appointments():
     try:
@@ -76,7 +77,7 @@ def get_all_appointments():
 
         # get all the appointment
         cursor.execute("""
-            SELECT a.appointment_id, a.patient_id, a.doctor_id, u.email AS doctor_email, a.appointment_date, a.status 
+            SELECT a.appointment_id, a.patient_id, a.doctor_id, u.email AS doctor_email, a.appointment_date, a.status
             FROM appointments a
             JOIN doctors d ON a.doctor_id = d.doctor_id
             JOIN users u ON d.user_id = u.user_id
@@ -103,6 +104,7 @@ def get_all_appointments():
         cursor.close()
         connection.close()
 
+
 @appointments_bp.route('/decision/<int:appointment_id>', methods=['POST'])
 def doctor_decision(appointment_id):
     data = request.get_json()
@@ -117,7 +119,7 @@ def doctor_decision(appointment_id):
 
         print("Processing decision for appointment:", appointment_id, "Decision:", decision)
 
-        #make sure there is appointment
+        # make sure there is appointment
         cursor.execute("SELECT appointment_id, status FROM appointments WHERE appointment_id = %s", (appointment_id,))
         appointment = cursor.fetchone()
 
@@ -143,6 +145,7 @@ def doctor_decision(appointment_id):
         cursor.close()
         connection.close()
 
+
 @appointments_bp.route('/cancel/<int:appointment_id>', methods=['POST'])
 def cancel_appointment(appointment_id):
     data = request.get_json()
@@ -157,7 +160,7 @@ def cancel_appointment(appointment_id):
 
         print(f"User ({user_role}) is canceling appointment ID: {appointment_id}")
 
-        # make sure there is apponitment 
+        # make sure there is apponitment
         cursor.execute("SELECT appointment_id, status FROM appointments WHERE appointment_id = %s", (appointment_id,))
         appointment = cursor.fetchone()
 
