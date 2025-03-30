@@ -4,12 +4,14 @@ import mysql.connector
 from config import DB_CONFIG
 from blueprints.registration import registration_bp
 from blueprints.patientDashboard import patient_dashboard_bp
+from blueprints.patientDashboardPayments import patient_dashboard_payments_bp
 
 app = Flask(__name__)
 CORS(app)
 
 app.register_blueprint(registration_bp)
 app.register_blueprint(patient_dashboard_bp)
+app.register_blueprint(patient_dashboard_payments_bp)
 
 
 # First route!
