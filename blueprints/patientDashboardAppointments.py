@@ -4,6 +4,7 @@ from config import DB_CONFIG
 
 patient_dashboard_appointments_bp = Blueprint('patient_dashboard_appointments', __name__, url_prefix='/api/patient-dashboard/appointments')
 
+
 @patient_dashboard_appointments_bp.route('/', methods=['GET'])
 def get_appointments():
     """
