@@ -6,6 +6,7 @@ from blueprints.registration import registration_bp
 from blueprints.patientDashboard import patient_dashboard_bp
 from blueprints.patientDashboardPayments import patient_dashboard_payments_bp
 from blueprints.patientDashboardAppointments import patient_dashboard_appointments_bp
+from blueprints.auth import auth_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -14,6 +15,7 @@ app.register_blueprint(registration_bp)
 app.register_blueprint(patient_dashboard_bp)
 app.register_blueprint(patient_dashboard_payments_bp)
 app.register_blueprint(patient_dashboard_appointments_bp)
+app.register_blueprint(auth_bp)
 
 
 # First route!
