@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify
 import mysql.connector
+import bcrypt
 from config import DB_CONFIG
-from mysql.connector import Error
-
 
 registration_bp = Blueprint('registration', __name__)
 
@@ -27,6 +26,9 @@ def register_patient():
     if not email or not password or not first_name or not last_name:
         return jsonify({"error": "Missing required fields"}), 400
 
+    # Hash the password using bcrypt
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor()
@@ -36,7 +38,7 @@ def register_patient():
             "INSERT INTO users (email, password_hash, user_type) "
             "VALUES (%s, %s, 'patient')"
         )
-        cursor.execute(insert_user, (email, password))
+        cursor.execute(insert_user, (email, hashed_password))
         user_id = cursor.lastrowid
 
         # Step 2: Insert into patients
@@ -50,7 +52,7 @@ def register_patient():
         connection.commit()
         return jsonify({"message": "Patient registered successfully"}), 201
 
-    except Error as err:
+    except mysql.connector.Error as err:
         print("Database error:", err)
         connection.rollback()
         return jsonify({"error": str(err)}), 500
@@ -83,6 +85,9 @@ def register_doctor():
     if not email or not password or not license_number or not first_name or not last_name or not ssn:
         return jsonify({"error": "Missing required fields"}), 400
 
+    # Hash the password using bcrypt
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor()
@@ -92,7 +97,7 @@ def register_doctor():
             "INSERT INTO users (email, password_hash, user_type) "
             "VALUES (%s, %s, 'doctor')"
         )
-        cursor.execute(insert_user, (email, password))
+        cursor.execute(insert_user, (email, hashed_password))
         user_id = cursor.lastrowid
 
         # Step 2: Insert into doctors
@@ -106,7 +111,7 @@ def register_doctor():
         connection.commit()
         return jsonify({"message": "Doctor registered successfully"}), 201
 
-    except Error as err:
+    except mysql.connector.Error as err:
         print("Database error:", err)
         connection.rollback()
         return jsonify({"error": str(err)}), 500
@@ -138,6 +143,9 @@ def register_pharmacy():
     if not email or not password or not name or not address or not phone_number or not license_number:
         return jsonify({"error": "Missing required fields"}), 400
 
+    # Hash the password using bcrypt
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor()
@@ -147,7 +155,7 @@ def register_pharmacy():
             "INSERT INTO users (email, password_hash, user_type) "
             "VALUES (%s, %s, 'pharmacy')"
         )
-        cursor.execute(insert_user, (email, password))
+        cursor.execute(insert_user, (email, hashed_password))
         user_id = cursor.lastrowid
 
         # Step 2: Insert into pharmacies table
@@ -162,7 +170,7 @@ def register_pharmacy():
 
         return jsonify({"message": "Pharmacy registered successfully"}), 201
 
-    except Error as err:
+    except mysql.connector.Error as err:
         print("Database error:", err)
         connection.rollback()
         return jsonify({"error": str(err)}), 500
