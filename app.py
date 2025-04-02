@@ -3,9 +3,9 @@ from flask_cors import CORS  # CORS for handling cross-origin requests
 import mysql.connector
 from config import DB_CONFIG
 from blueprints.registration import registration_bp
-from blueprints.patientDashboard import patient_dashboard_bp
-from blueprints.patientDashboardPayments import patient_dashboard_payments_bp
-from blueprints.patientDashboardAppointments import patient_dashboard_appointments_bp
+from blueprints.patientDashboard.patientDashboard import patient_dashboard_bp
+from blueprints.patientDashboard.patientDashboardPayments import patient_dashboard_payments_bp
+from blueprints.patientDashboard.patientDashboardAppointments import patient_dashboard_appointments_bp
 from blueprints.auth import auth_bp
 
 app = Flask(__name__)

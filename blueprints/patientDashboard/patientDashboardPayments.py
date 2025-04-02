@@ -9,15 +9,23 @@ patient_dashboard_payments_bp = Blueprint('patient_dashboard_payments', __name__
 def get_doctor_payments():
     """
     Endpoint to fetch all payments made by a patient to doctors.
-    Returns: payment_id, doctor's first & last name, amount, payment status, and payment date.
+    Now expects a query parameter `user_id`, converts it to patient_id,
+    and returns: payment_id, doctor's first & last name, amount, payment status, and payment date.
     """
-    patient_id = request.args.get('patient_id', type=int)
-    if not patient_id:
-        return jsonify({"error": "patient_id query parameter is required"}), 400
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
 
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor(dictionary=True)
+
+        # Convert user_id to patient_id
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for given user_id"}), 404
+        patient_id = patient["patient_id"]
 
         # Join payments_doctor with doctors to get doctor's name for display
         sql = """
@@ -42,15 +50,23 @@ def get_doctor_payments():
 def get_pharmacy_payments():
     """
     Endpoint to fetch all payments made by a patient to pharmacies.
-    Returns: payment_id, pharmacy name, amount, payment status, and payment date.
+    Now expects a query parameter `user_id`, converts it to patient_id,
+    and returns: payment_id, pharmacy name, amount, payment status, and payment date.
     """
-    patient_id = request.args.get('patient_id', type=int)
-    if not patient_id:
-        return jsonify({"error": "patient_id query parameter is required"}), 400
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
 
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor(dictionary=True)
+
+        # Convert user_id to patient_id
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for given user_id"}), 404
+        patient_id = patient["patient_id"]
 
         # Join payments_pharmacy with pharmacies to get the pharmacy name
         sql = """

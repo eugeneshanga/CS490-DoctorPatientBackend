@@ -49,17 +49,24 @@ def search_doctors():
 def get_meal_plans():
     """
     Endpoint to fetch all meal plans for a given patient.
-    Expects a query parameter `patient_id` to identify the logged in patient.
+    Now expects a query parameter `user_id` and then looks up the corresponding patient_id.
     Returns a list of meal plans.
     """
-    patient_id = request.args.get('patient_id', type=int)
+    user_id = request.args.get('user_id', type=int)
 
-    if not patient_id:
-        return jsonify({"error": "patient_id query parameter is required"}), 400
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
 
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor(dictionary=True)
+
+        # Convert user_id to patient_id
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for the given user_id"}), 404
+        patient_id = patient["patient_id"]
 
         # Retrieve all meal plans for the patient, ordered by creation date descending
         sql = """
@@ -84,17 +91,24 @@ def get_meal_plans():
 def get_prescriptions():
     """
     Endpoint to fetch all prescriptions for a given patient.
-    Expects a query parameter `patient_id` identifying the logged-in patient.
+    Now expects a query parameter `user_id` and then looks up the corresponding patient_id.
     Returns a list of prescriptions.
     """
-    patient_id = request.args.get('patient_id', type=int)
+    user_id = request.args.get('user_id', type=int)
 
-    if not patient_id:
-        return jsonify({"error": "patient_id query parameter is required"}), 400
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
 
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor(dictionary=True)
+
+        # Convert user_id to patient_id
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for the given user_id"}), 404
+        patient_id = patient["patient_id"]
 
         sql = """
             SELECT prescription_id, doctor_id, patient_id, pharmacy_id, medication_name,
