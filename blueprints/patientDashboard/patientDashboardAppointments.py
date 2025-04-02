@@ -9,16 +9,23 @@ patient_dashboard_appointments_bp = Blueprint('patient_dashboard_appointments', 
 def get_appointments():
     """
     Endpoint to fetch current (upcoming) and previous (past) appointments for a given patient.
-    Expects a query parameter `patient_id`.
+    Now expects a query parameter `user_id` and converts it to a patient_id.
     Returns a JSON object with two keys: "upcoming" and "past".
     """
-    patient_id = request.args.get('patient_id', type=int)
-    if not patient_id:
-        return jsonify({"error": "patient_id query parameter is required"}), 400
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
 
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor(dictionary=True)
+
+        # Convert user_id to patient_id
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for given user_id"}), 404
+        patient_id = patient["patient_id"]
 
         # Fetch upcoming appointments (appointments that have not yet occurred)
         upcoming_sql = """
