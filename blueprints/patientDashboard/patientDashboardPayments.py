@@ -44,3 +44,43 @@ def get_doctor_payments():
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
+    
+@patient_dashboard_payments_bp.route('/pharmacy', methods=['GET'])
+def get_pharmacy_payments():
+    """
+    Endpoint to fetch all payments made by a patient to pharmacies.
+    Now expects a query parameter `user_id`, converts it to patient_id,
+    and returns: payment_id, pharmacy name, amount, payment status, and payment date.
+    """
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
+
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor(dictionary=True)
+
+        # Convert user_id to patient_id
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for given user_id"}), 404
+        patient_id = patient["patient_id"]
+
+        # Join payments_pharmacy with pharmacies to get the pharmacy name
+        sql = """
+            SELECT pp.payment_id, p.name AS pharmacy_name, pp.amount, pp.is_fulfilled, pp.payment_date
+            FROM payments_pharmacy pp
+            JOIN pharmacies p ON pp.pharmacy_id = p.pharmacy_id
+            WHERE pp.patient_id = %s
+            ORDER BY pp.payment_date DESC
+        """
+        cursor.execute(sql, (patient_id,))
+        payments = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+        return jsonify(payments), 200
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
