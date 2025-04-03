@@ -6,6 +6,7 @@ from blueprints.registration import registration_bp
 from blueprints.patientDashboard.patientDashboard import patient_dashboard_bp
 from blueprints.patientDashboard.patientDashboardPayments import patient_dashboard_payments_bp
 from blueprints.patientDashboard.patientDashboardAppointments import patient_dashboard_appointments_bp
+from blueprints.patientDashboard.patientMetrics import patient_dashboard_metrics_bp
 from blueprints.auth import auth_bp
 
 app = Flask(__name__)
@@ -15,6 +16,7 @@ app.register_blueprint(registration_bp)
 app.register_blueprint(patient_dashboard_bp)
 app.register_blueprint(patient_dashboard_payments_bp)
 app.register_blueprint(patient_dashboard_appointments_bp)
+app.register_blueprint(patient_dashboard_metrics_bp)
 app.register_blueprint(auth_bp)
 
 
