@@ -104,3 +104,55 @@ def patient_appointment():
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
+
+
+@patient_dashboard_appointments_bp.route('/cancel_appointment', methods=['PATCH'])
+def cancel_appointment():
+    """
+    Endpoint for a patient to cancel an appointment.
+    Expects JSON with:
+      - user_id: The ID of the user (patient)
+      - appointment_id: The ID of the appointment to cancel.
+
+    Only the owner of the appointment can cancel it.
+    The appointment's status is updated to 'canceled'.
+    """
+    data = request.get_json()
+    user_id = data.get('user_id')
+    appointment_id = data.get('appointment_id')
+
+    if not user_id or not appointment_id:
+        return jsonify({"error": "Missing required fields: user_id, appointment_id"}), 400
+
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor(dictionary=True)
+
+        # Convert user_id to patient_id
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for given user_id"}), 404
+        patient_id = patient["patient_id"]
+
+        # Verify that the appointment belongs to this patient
+        cursor.execute(
+            "SELECT * FROM appointments WHERE appointment_id = %s AND patient_id = %s",
+            (appointment_id, patient_id)
+        )
+        appointment = cursor.fetchone()
+        if not appointment:
+            return jsonify({"error": "Appointment not found for given appointment_id and patient"}), 404
+
+        # Update the appointment status to 'canceled'
+        update_sql = "UPDATE appointments SET status = 'canceled' WHERE appointment_id = %s"
+        cursor.execute(update_sql, (appointment_id,))
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+
+        return jsonify({"message": "Appointment canceled successfully"}), 200
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
