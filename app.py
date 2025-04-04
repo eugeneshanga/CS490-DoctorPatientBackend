@@ -8,7 +8,8 @@ from blueprints.patientDashboard.patientDashboardPayments import patient_dashboa
 from blueprints.patientDashboard.patientDashboardAppointments import patient_dashboard_appointments_bp
 from blueprints.patientDashboard.patientMetrics import patient_dashboard_metrics_bp
 from blueprints.auth import auth_bp
-from blueprints.discussion import discussion_bp 
+from blueprints.discussion import discussion_bp
+
 app = Flask(__name__)
 CORS(app)
 
