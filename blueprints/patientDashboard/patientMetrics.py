@@ -60,11 +60,11 @@ def get_graph_data():
     """
     Endpoint to fetch graph data for weight and caloric intake over time.
     Expects a query parameter 'user_id'. Converts user_id to patient_id.
-    
+
     Returns a JSON object with:
       - weight_data: list of objects with keys 'date' and 'weight'
       - caloric_intake_data: list of objects with keys 'date' and 'calories'
-    
+
     Example response:
     {
       "weight_data": [
@@ -94,9 +94,9 @@ def get_graph_data():
 
         # Query medical_metrics for the patient.
         sql = """
-            SELECT DATE(recorded_at) AS date, weight, caloric_intake 
-            FROM medical_metrics 
-            WHERE patient_id = %s 
+            SELECT DATE(recorded_at) AS date, weight, caloric_intake
+            FROM medical_metrics
+            WHERE patient_id = %s
             ORDER BY recorded_at ASC
         """
         cursor.execute(sql, (patient_id,))
