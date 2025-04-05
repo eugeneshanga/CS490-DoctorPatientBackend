@@ -53,3 +53,70 @@ def submit_medical_metrics():
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
+
+
+@patient_dashboard_metrics_bp.route('/graph-data', methods=['GET'])
+def get_graph_data():
+    """
+    Endpoint to fetch graph data for weight and caloric intake over time.
+    Expects a query parameter 'user_id'. Converts user_id to patient_id.
+
+    Returns a JSON object with:
+      - weight_data: list of objects with keys 'date' and 'weight'
+      - caloric_intake_data: list of objects with keys 'date' and 'calories'
+
+    Example response:
+    {
+      "weight_data": [
+         {"date": "2025-04-10", "weight": 70.5},
+         {"date": "2025-04-11", "weight": 70.8}
+      ],
+      "caloric_intake_data": [
+         {"date": "2025-04-10", "calories": 2200},
+         {"date": "2025-04-11", "calories": 2100}
+      ]
+    }
+    """
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
+
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor(dictionary=True)
+
+        # Convert user_id to patient_id
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for given user_id"}), 404
+        patient_id = patient["patient_id"]
+
+        # Query medical_metrics for the patient.
+        sql = """
+            SELECT DATE(recorded_at) AS date, weight, caloric_intake
+            FROM medical_metrics
+            WHERE patient_id = %s
+            ORDER BY recorded_at ASC
+        """
+        cursor.execute(sql, (patient_id,))
+        metrics = cursor.fetchall()
+
+        weight_data = []
+        caloric_intake_data = []
+        for row in metrics:
+            # Convert the date to ISO format string for JSON compatibility.
+            date_str = row["date"].isoformat() if hasattr(row["date"], 'isoformat') else str(row["date"])
+            weight_data.append({"date": date_str, "weight": row["weight"]})
+            caloric_intake_data.append({"date": date_str, "calories": row["caloric_intake"]})
+
+        cursor.close()
+        connection.close()
+
+        return jsonify({
+            "weight_data": weight_data,
+            "caloric_intake_data": caloric_intake_data
+        }), 200
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
