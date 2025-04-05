@@ -195,4 +195,13 @@ CREATE TABLE prescriptions (
     FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(pharmacy_id) ON DELETE SET NULL
 );
 
+CREATE TABLE official_meal_plans (
+    meal_plan_id INT AUTO_INCREMENT PRIMARY KEY,
+    doctor_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    meal_plan JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
+);
 
