@@ -4,6 +4,7 @@ from config import DB_CONFIG
 
 doctor_dashboard_meal_plans_bp = Blueprint('doctor_dashboard_meal_plans', __name__, url_prefix='/api/doctor-dashboard')
 
+
 @doctor_dashboard_meal_plans_bp.route('/official-meal-plans', methods=['GET'])
 def get_official_meal_plans():
     """
@@ -46,4 +47,3 @@ def get_official_meal_plans():
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
-

@@ -4,6 +4,7 @@ from config import DB_CONFIG
 
 doctor_dashboard_payments_bp = Blueprint('doctor_dashboard_payments', __name__, url_prefix='/api/doctor-dashboard')
 
+
 @doctor_dashboard_payments_bp.route('/payments', methods=['GET'])
 def get_doctor_payments():
     """

@@ -25,6 +25,7 @@ app.register_blueprint(discussion_bp)
 app.register_blueprint(doctor_dashboard_bp)
 app.register_blueprint(doctor_dashboard_payments_bp)
 
+
 # First route!
 @app.route('/api/hello', methods=['GET'])
 def hello():
