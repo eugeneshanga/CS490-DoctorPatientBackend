@@ -4,13 +4,13 @@ from config import DB_CONFIG
 
 patient_dashboard_appointments_bp = Blueprint('patient_dashboard_appointments', __name__, url_prefix='/api/patient-dashboard/appointments')
 
-
-@patient_dashboard_appointments_bp.route('/', methods=['GET'])
-def get_appointments():
+@patient_dashboard_appointments_bp.route('/accepted', methods=['GET'])
+def get_upcoming_accepted_appointments():
     """
-    Endpoint to fetch current (upcoming) and previous (past) appointments for a given patient.
-    Now expects a query parameter `user_id` and converts it to a patient_id.
-    Returns a JSON object with two keys: "upcoming" and "past".
+    Endpoint to fetch upcoming accepted appointments for a patient.
+    Expects a query parameter 'user_id', converts it to patient_id,
+    and retrieves appointments with status 'accepted' that are in the future.
+    Returns a JSON array of appointments.
     """
     user_id = request.args.get('user_id', type=int)
     if not user_id:
@@ -19,41 +19,178 @@ def get_appointments():
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor(dictionary=True)
-
-        # Convert user_id to patient_id
         cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
         patient = cursor.fetchone()
         if not patient:
             return jsonify({"error": "Patient not found for given user_id"}), 404
         patient_id = patient["patient_id"]
 
-        # Fetch upcoming appointments (appointments that have not yet occurred)
-        upcoming_sql = """
+        sql = """
             SELECT appointment_id, doctor_id, patient_id, appointment_time, status
             FROM appointments
-            WHERE patient_id = %s AND appointment_time >= NOW()
+            WHERE patient_id = %s 
+              AND status = 'accepted'
+              AND appointment_time >= NOW()
             ORDER BY appointment_time ASC
         """
-        cursor.execute(upcoming_sql, (patient_id,))
-        upcoming_appointments = cursor.fetchall()
-
-        # Fetch past appointments (appointments that have already occurred)
-        past_sql = """
-            SELECT appointment_id, doctor_id, patient_id, appointment_time, status
-            FROM appointments
-            WHERE patient_id = %s AND appointment_time < NOW()
-            ORDER BY appointment_time DESC
-        """
-        cursor.execute(past_sql, (patient_id,))
-        past_appointments = cursor.fetchall()
+        cursor.execute(sql, (patient_id,))
+        appointments = cursor.fetchall()
 
         cursor.close()
         connection.close()
+        return jsonify(appointments), 200
 
-        return jsonify({
-            "upcoming": upcoming_appointments,
-            "past": past_appointments
-        }), 200
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+
+@patient_dashboard_appointments_bp.route('/scheduled', methods=['GET'])
+def get_scheduled_appointments():
+    """
+    Endpoint to fetch scheduled appointments for a patient.
+    Expects a query parameter 'user_id', converts it to patient_id,
+    and retrieves appointments with status 'scheduled'.
+    Returns a JSON array of appointments.
+    """
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
+
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for given user_id"}), 404
+        patient_id = patient["patient_id"]
+
+        sql = """
+            SELECT appointment_id, doctor_id, patient_id, appointment_time, status
+            FROM appointments
+            WHERE patient_id = %s 
+              AND status = 'scheduled'
+            ORDER BY appointment_time ASC
+        """
+        cursor.execute(sql, (patient_id,))
+        appointments = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+        return jsonify(appointments), 200
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+
+@patient_dashboard_appointments_bp.route('/canceled', methods=['GET'])
+def get_canceled_appointments():
+    """
+    Endpoint to fetch canceled appointments for a patient.
+    Expects a query parameter 'user_id', converts it to patient_id,
+    and retrieves appointments with status 'canceled'.
+    Returns a JSON array of appointments.
+    """
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
+
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for given user_id"}), 404
+        patient_id = patient["patient_id"]
+
+        sql = """
+            SELECT appointment_id, doctor_id, patient_id, appointment_time, status
+            FROM appointments
+            WHERE patient_id = %s 
+              AND status = 'canceled'
+            ORDER BY appointment_time DESC
+        """
+        cursor.execute(sql, (patient_id,))
+        appointments = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+        return jsonify(appointments), 200
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+
+@patient_dashboard_appointments_bp.route('/rejected', methods=['GET'])
+def get_rejected_appointments():
+    """
+    Endpoint to fetch rejected appointments for a patient.
+    Expects a query parameter 'user_id', converts it to patient_id,
+    and retrieves appointments with status 'rejected'.
+    Returns a JSON array of appointments.
+    """
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
+
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for given user_id"}), 404
+        patient_id = patient["patient_id"]
+
+        sql = """
+            SELECT appointment_id, doctor_id, patient_id, appointment_time, status
+            FROM appointments
+            WHERE patient_id = %s 
+              AND status = 'rejected'
+            ORDER BY appointment_time DESC
+        """
+        cursor.execute(sql, (patient_id,))
+        appointments = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+        return jsonify(appointments), 200
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+
+@patient_dashboard_appointments_bp.route('/completed', methods=['GET'])
+def get_completed_appointments():
+    """
+    Endpoint to fetch completed appointments for a patient.
+    Expects a query parameter 'user_id', converts it to patient_id,
+    and retrieves appointments with status 'completed'.
+    Returns a JSON array of appointments.
+    """
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
+
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for given user_id"}), 404
+        patient_id = patient["patient_id"]
+
+        sql = """
+            SELECT appointment_id, doctor_id, patient_id, appointment_time, status
+            FROM appointments
+            WHERE patient_id = %s 
+              AND status = 'completed'
+            ORDER BY appointment_time DESC
+        """
+        cursor.execute(sql, (patient_id,))
+        appointments = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+        return jsonify(appointments), 200
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
