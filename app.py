@@ -12,6 +12,8 @@ from blueprints.doctorDashboard.payments import doctor_dashboard_payments_bp
 from blueprints.doctorDashboard.appointments import doctor_dashboard_appointments_bp
 from blueprints.pharmacyDashboard.dashboard import pharmacy_dashboard_bp
 from blueprints.pharmacyDashboard.inventory import pharmacy_inventory_bp
+from blueprints.pharmacyDashboard.payments import pharmacy_dashboard_payments_bp
+from blueprints.pharmacyDashboard.prescriptions import pharmacy_dashboard_prescriptions_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -28,6 +30,8 @@ app.register_blueprint(doctor_dashboard_payments_bp)
 app.register_blueprint(doctor_dashboard_appointments_bp)
 app.register_blueprint(pharmacy_dashboard_bp)
 app.register_blueprint(pharmacy_inventory_bp)
+app.register_blueprint(pharmacy_dashboard_payments_bp)
+app.register_blueprint(pharmacy_dashboard_prescriptions_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)
