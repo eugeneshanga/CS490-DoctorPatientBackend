@@ -4,6 +4,7 @@ from config import DB_CONFIG
 
 patient_dashboard_appointments_bp = Blueprint('patient_dashboard_appointments', __name__, url_prefix='/api/patient-dashboard/appointments')
 
+
 @patient_dashboard_appointments_bp.route('/accepted', methods=['GET'])
 def get_upcoming_accepted_appointments():
     """
@@ -28,7 +29,7 @@ def get_upcoming_accepted_appointments():
         sql = """
             SELECT appointment_id, doctor_id, patient_id, appointment_time, status
             FROM appointments
-            WHERE patient_id = %s 
+            WHERE patient_id = %s
               AND status = 'accepted'
               AND appointment_time >= NOW()
             ORDER BY appointment_time ASC
@@ -42,6 +43,7 @@ def get_upcoming_accepted_appointments():
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
+
 
 @patient_dashboard_appointments_bp.route('/scheduled', methods=['GET'])
 def get_scheduled_appointments():
@@ -67,7 +69,7 @@ def get_scheduled_appointments():
         sql = """
             SELECT appointment_id, doctor_id, patient_id, appointment_time, status
             FROM appointments
-            WHERE patient_id = %s 
+            WHERE patient_id = %s
               AND status = 'scheduled'
             ORDER BY appointment_time ASC
         """
@@ -80,6 +82,7 @@ def get_scheduled_appointments():
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
+
 
 @patient_dashboard_appointments_bp.route('/canceled', methods=['GET'])
 def get_canceled_appointments():
@@ -105,7 +108,7 @@ def get_canceled_appointments():
         sql = """
             SELECT appointment_id, doctor_id, patient_id, appointment_time, status
             FROM appointments
-            WHERE patient_id = %s 
+            WHERE patient_id = %s
               AND status = 'canceled'
             ORDER BY appointment_time DESC
         """
@@ -118,6 +121,7 @@ def get_canceled_appointments():
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
+
 
 @patient_dashboard_appointments_bp.route('/rejected', methods=['GET'])
 def get_rejected_appointments():
@@ -143,7 +147,7 @@ def get_rejected_appointments():
         sql = """
             SELECT appointment_id, doctor_id, patient_id, appointment_time, status
             FROM appointments
-            WHERE patient_id = %s 
+            WHERE patient_id = %s
               AND status = 'rejected'
             ORDER BY appointment_time DESC
         """
@@ -156,6 +160,7 @@ def get_rejected_appointments():
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
+
 
 @patient_dashboard_appointments_bp.route('/completed', methods=['GET'])
 def get_completed_appointments():
@@ -181,7 +186,7 @@ def get_completed_appointments():
         sql = """
             SELECT appointment_id, doctor_id, patient_id, appointment_time, status
             FROM appointments
-            WHERE patient_id = %s 
+            WHERE patient_id = %s
               AND status = 'completed'
             ORDER BY appointment_time DESC
         """
