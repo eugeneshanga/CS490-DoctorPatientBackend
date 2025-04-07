@@ -1,7 +1,5 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask_cors import CORS  # CORS for handling cross-origin requests
-import mysql.connector
-from config import DB_CONFIG
 from blueprints.registration import registration_bp
 from blueprints.patientDashboard.dashboard import patient_dashboard_bp
 from blueprints.patientDashboard.payments import patient_dashboard_payments_bp
