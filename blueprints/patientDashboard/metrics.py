@@ -151,10 +151,10 @@ def get_latest_height():
 
         # Fetch the latest recorded height by ordering by recorded_at descending.
         sql = """
-            SELECT height 
-            FROM medical_metrics 
-            WHERE patient_id = %s 
-            ORDER BY recorded_at DESC 
+            SELECT height
+            FROM medical_metrics
+            WHERE patient_id = %s
+            ORDER BY recorded_at DESC
             LIMIT 1
         """
         cursor.execute(sql, (patient_id,))
