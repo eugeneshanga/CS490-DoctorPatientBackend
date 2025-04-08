@@ -27,11 +27,15 @@ INSERT INTO doctors (user_id, license_number, first_name, last_name, address, ph
 INSERT INTO pharmacies (user_id, name, address, zip_code, phone_number, license_number, is_active) VALUES
 (7, 'Healthy Pharmacy', '111 Wellness Way', '45678', '555-4444', 'PHAR1234', TRUE);
 
--- 5. Insert Medical Metrics for Patients
-INSERT INTO medical_metrics (patient_id, weight, height, caloric_intake) VALUES
-(1, 65.5, 1.70, 2000),
-(2, 82.3, 1.80, 2200),
-(3, 74.0, 1.75, 2100);
+-- Insert a series of records for patient_id 2 (e.g., over March 2025)
+INSERT INTO medical_metrics (patient_id, weight, height, caloric_intake, recorded_at) VALUES
+(2, 82.3, 1.80, 2200, '2025-03-01 08:00:00'),
+(2, 81.8, 1.80, 2150, '2025-03-05 08:00:00'),
+(2, 81.3, 1.80, 2100, '2025-03-10 08:00:00'),
+(2, 80.8, 1.80, 2050, '2025-03-15 08:00:00'),
+(2, 80.3, 1.80, 2000, '2025-03-20 08:00:00'),
+(2, 79.8, 1.80, 1950, '2025-03-25 08:00:00'),
+(2, 79.3, 1.80, 1900, '2025-03-30 08:00:00');
 
 -- 6. Insert Doctor-Patient Relationships
 -- Assuming doctor_id values are auto-assigned as 1, 2, and 3 respectively.
