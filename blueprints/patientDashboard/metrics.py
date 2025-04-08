@@ -120,3 +120,53 @@ def get_graph_data():
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
+
+
+@patient_dashboard_metrics_bp.route('/latest-height', methods=['GET'])
+def get_latest_height():
+    """
+    Endpoint to retrieve the latest recorded height for a patient.
+    Expects a query parameter 'user_id'. Converts user_id to patient_id,
+    then fetches the latest (most recent) height from the medical_metrics table.
+
+    Returns a JSON object:
+      {
+         "latest_height": 1.80
+      }
+    """
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
+
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor(dictionary=True)
+
+        # Convert user_id to patient_id
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"error": "Patient not found for given user_id"}), 404
+        patient_id = patient["patient_id"]
+
+        # Fetch the latest recorded height by ordering by recorded_at descending.
+        sql = """
+            SELECT height 
+            FROM medical_metrics 
+            WHERE patient_id = %s 
+            ORDER BY recorded_at DESC 
+            LIMIT 1
+        """
+        cursor.execute(sql, (patient_id,))
+        result = cursor.fetchone()
+
+        cursor.close()
+        connection.close()
+
+        if result:
+            return jsonify({"latest_height": result["height"]}), 200
+        else:
+            return jsonify({"error": "No metrics found for this patient"}), 404
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
