@@ -110,3 +110,32 @@ def get_post_replies(post_id):
     finally:
         cursor.close()
         connection.close()
+
+@discussion_bp.route('/reply-comments', methods=['POST'])
+def add_reply_to_reply():
+    data = request.get_json()
+    reply_id = data.get('reply_id')
+    patient_id = data.get('patient_id')
+    content = data.get('content')
+
+    if not reply_id or not patient_id or not content:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            INSERT INTO reply_comments (reply_id, responder_name, content)
+            VALUES (%s, %s, %s)
+        """, (reply_id, f"Patient {patient_id}", content))
+        connection.commit()
+
+        return jsonify({"message": "Reply comment submitted successfully"}), 201
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
