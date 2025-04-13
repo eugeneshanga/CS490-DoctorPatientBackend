@@ -117,11 +117,18 @@ CREATE TABLE payments_pharmacy (
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
 );
 
--- Patient Meal Plans table
+-- Patient Meal Plans: These are private meal plans for patients.
 CREATE TABLE patient_meal_plans (
     meal_plan_id INT AUTO_INCREMENT PRIMARY KEY,
     patient_id INT NOT NULL,
-    meal_plan JSON NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    image LONGBLOB,
+    instructions TEXT,
+    calories INT,
+    fat INT,
+    sugar INT,
+    ingredients TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
 );
@@ -200,8 +207,23 @@ CREATE TABLE official_meal_plans (
     doctor_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    meal_plan JSON NOT NULL,
+    image LONGBLOB,
+    instructions TEXT,
+    calories INT,
+    fat INT,
+    sugar INT,
+    ingredients TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
 );
 
+-- Mapping Table: To assign a doctor's official meal plan to multiple patients.
+CREATE TABLE patient_assigned_meal_plans (
+    assignment_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    meal_plan_id INT NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (meal_plan_id) REFERENCES official_meal_plans(meal_plan_id) ON DELETE CASCADE,
+    UNIQUE (patient_id, meal_plan_id)
+);
