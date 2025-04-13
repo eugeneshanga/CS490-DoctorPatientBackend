@@ -111,6 +111,7 @@ def get_post_replies(post_id):
         cursor.close()
         connection.close()
 
+
 @discussion_bp.route('/reply-comments', methods=['POST'])
 def add_reply_to_reply():
     data = request.get_json()
