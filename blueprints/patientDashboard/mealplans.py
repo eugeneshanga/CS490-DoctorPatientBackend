@@ -115,7 +115,7 @@ def create_official_mealplan():
     image_file = request.files.get('image')
     image_data = None
     if image_file:
-        filename = secure_filename(image_file.filename)
+        filename = secure_filename(image_file.filename)  # noqa: F841
         image_data = image_file.read()
 
     try:
