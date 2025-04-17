@@ -38,7 +38,7 @@ INSERT INTO appointments (doctor_id, patient_id, appointment_time, status) VALUE
 -- Insert payments to doctor
 INSERT INTO payments_doctor (doctor_id, patient_id, amount, is_fulfilled) VALUES
 (1, 1, 100.00, TRUE),
-(1, 1, 120.00, TRUE);
+(1, 1, 120.00, FALSE);
 
 -- Insert payments to pharmacy
 INSERT INTO payments_pharmacy (pharmacy_id, patient_id, amount, is_fulfilled) VALUES
