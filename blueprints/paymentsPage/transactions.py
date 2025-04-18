@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 import mysql.connector
 from config import DB_CONFIG
 
@@ -42,35 +42,71 @@ def get_doctor_payment(payment_id):
         return jsonify({"error": str(err)}), 500
 
 
-# --- DOCTOR PAYMENT FULFILL ---
+# --- DOCTOR PAYMENT FULFILL w/ details ---
 @payment_transaction_bp.route('/payments/doctor/<int:payment_id>/fulfill', methods=['PATCH'])
 def fulfill_doctor_payment(payment_id):
+    """
+    Mark a doctor payment as fulfilled and record the card details used.
+    Expects a JSON body with the following fields:
+      - cardholder_name: Name on the card (string, required)
+      - card_number: Full card number (string, required)
+      - exp_month: Two‑digit expiration month (integer 1–12, required)
+      - exp_year: Four‑digit expiration year (integer, required)
+      - cvv: Three‑ or four‑digit security code (string, required)
+
+    URL path parameter:
+      - payment_id: The ID of the doctor payment to fulfill (int)
+    """
+    data = request.get_json() or {}
+    cardholder_name = data.get('cardholder_name')
+    card_number = data.get('card_number')
+    exp_month = data.get('exp_month')
+    exp_year = data.get('exp_year')
+    cvv = data.get('cvv')
+
+    if not all([cardholder_name, card_number, exp_month, exp_year, cvv]):
+        return jsonify({"error": "Missing payment detail fields"}), 400
+
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
         cursor = conn.cursor()
 
-        # flip to TRUE only if it exists and is not already fulfilled
-        sql = """
+        # 1) Mark the payment fulfilled
+        cursor.execute("""
             UPDATE payments_doctor
                SET is_fulfilled = TRUE
              WHERE payment_id = %s
                AND is_fulfilled = FALSE
-        """
-        cursor.execute(sql, (payment_id,))
+        """, (payment_id,))
+        if cursor.rowcount == 0:
+            conn.rollback()
+            return jsonify({"error": "No unfulfilled payment found"}), 404
+
+        # 2) Record the card details
+        cursor.execute("""
+            INSERT INTO doctor_payment_details
+              (payment_id, cardholder_name, card_number, exp_month, exp_year, cvv)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            payment_id,
+            cardholder_name,
+            card_number,
+            exp_month,
+            exp_year,
+            cvv
+        ))
+
         conn.commit()
-        updated = cursor.rowcount
         cursor.close()
         conn.close()
 
-        if updated == 0:
-            return jsonify({"error": "No unfulfilled payment found with that ID"}), 404
-
         return jsonify({
-            "message": "Payment marked as fulfilled",
+            "message": "Payment fulfilled and details recorded",
             "payment_id": payment_id
         }), 200
 
     except mysql.connector.Error as err:
+        conn.rollback()
         return jsonify({"error": str(err)}), 500
 
 
@@ -109,32 +145,71 @@ def get_pharmacy_payment(payment_id):
         return jsonify({"error": str(err)}), 500
 
 
-# --- PHARMACY PAYMENT FULFILL ---
-@payment_transaction_bp.route('/payments/pharmacy/<int:payment_id>/fulfill', methods=['PATCH'])
+# --- PHARMACY PAYMENT FULFILL w/ details ---
+@payment_transaction_bp.route(
+    '/payments/pharmacy/<int:payment_id>/fulfill', methods=['PATCH']
+)
 def fulfill_pharmacy_payment(payment_id):
+    """
+    Mark a pharmacy payment as fulfilled and record the card details used.
+    Expects a JSON body with the following fields:
+      - cardholder_name: Name on the card (string, required)
+      - card_number: Full card number (string, required)
+      - exp_month: Two‑digit expiration month (integer 1–12, required)
+      - exp_year: Four‑digit expiration year (integer, required)
+      - cvv: Three‑ or four‑digit security code (string, required)
+
+    URL path parameter:
+      - payment_id: The ID of the pharmacy payment to fulfill (int)
+    """
+    data = request.get_json() or {}
+    cardholder_name = data.get('cardholder_name')
+    card_number = data.get('card_number')
+    exp_month = data.get('exp_month')
+    exp_year = data.get('exp_year')
+    cvv = data.get('cvv')
+
+    if not all([cardholder_name, card_number, exp_month, exp_year, cvv]):
+        return jsonify({"error": "Missing payment detail fields"}), 400
+
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
         cursor = conn.cursor()
 
-        sql = """
+        # 1) Mark the payment fulfilled
+        cursor.execute("""
             UPDATE payments_pharmacy
                SET is_fulfilled = TRUE
              WHERE payment_id = %s
                AND is_fulfilled = FALSE
-        """
-        cursor.execute(sql, (payment_id,))
+        """, (payment_id,))
+        if cursor.rowcount == 0:
+            conn.rollback()
+            return jsonify({"error": "No unfulfilled payment found"}), 404
+
+        # 2) Record the card details
+        cursor.execute("""
+            INSERT INTO pharmacy_payment_details
+              (payment_id, cardholder_name, card_number, exp_month, exp_year, cvv)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            payment_id,
+            cardholder_name,
+            card_number,
+            exp_month,
+            exp_year,
+            cvv
+        ))
+
         conn.commit()
-        updated = cursor.rowcount
         cursor.close()
         conn.close()
 
-        if updated == 0:
-            return jsonify({"error": "No unfulfilled payment found with that ID"}), 404
-
         return jsonify({
-            "message": "Payment marked as fulfilled",
+            "message": "Payment fulfilled and details recorded",
             "payment_id": payment_id
         }), 200
 
     except mysql.connector.Error as err:
+        conn.rollback()
         return jsonify({"error": str(err)}), 500

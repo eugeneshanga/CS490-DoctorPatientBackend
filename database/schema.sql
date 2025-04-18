@@ -230,3 +230,38 @@ CREATE TABLE patient_assigned_meal_plans (
     FOREIGN KEY (meal_plan_id) REFERENCES official_meal_plans(meal_plan_id) ON DELETE CASCADE,
     UNIQUE (patient_id, meal_plan_id)
 );
+
+-- Doctor transaction payment details
+CREATE TABLE doctor_payment_details (
+  detail_id        INT AUTO_INCREMENT PRIMARY KEY,
+  payment_id       INT            NOT NULL,
+  cardholder_name  VARCHAR(255)   NOT NULL,
+  card_number      VARCHAR(20)    NOT NULL,
+  exp_month        TINYINT UNSIGNED NOT NULL,  -- 1–12
+  exp_year         SMALLINT UNSIGNED NOT NULL, -- full year, e.g. 2025
+  cvv              VARCHAR(4)     NOT NULL,
+  created_at       TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_doc_pay
+    FOREIGN KEY (payment_id)
+    REFERENCES payments_doctor(payment_id)
+    ON DELETE CASCADE
+);
+
+
+-- Pharmacy transaction payment details
+CREATE TABLE pharmacy_payment_details (
+  detail_id        INT AUTO_INCREMENT PRIMARY KEY,
+  payment_id       INT            NOT NULL,
+  cardholder_name  VARCHAR(255)   NOT NULL,
+  card_number      VARCHAR(20)    NOT NULL,
+  exp_month        TINYINT UNSIGNED NOT NULL,  -- 1–12
+  exp_year         SMALLINT UNSIGNED NOT NULL, -- full year, e.g. 2025
+  cvv              VARCHAR(4)     NOT NULL,
+  created_at       TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_pharm_pay
+    FOREIGN KEY (payment_id)
+    REFERENCES payments_pharmacy(payment_id)
+    ON DELETE CASCADE
+);

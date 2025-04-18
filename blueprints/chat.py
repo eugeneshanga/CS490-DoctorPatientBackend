@@ -4,9 +4,9 @@ from config import DB_CONFIG
 
 chat_bp = Blueprint("chat", __name__, url_prefix="/api/chat")
 
+
 # send
 @chat_bp.route('/send', methods=['POST'])
-
 def send_message():
     data = request.get_json()
     patient_id = data.get('patient_id')
@@ -38,7 +38,7 @@ def send_message():
         conn.close()
 
 
-# get 
+# get
 @chat_bp.route('/history', methods=['GET'])
 def get_chat_history():
     doctor_id = request.args.get('doctor_id')
