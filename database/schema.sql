@@ -230,3 +230,5 @@ CREATE TABLE patient_assigned_meal_plans (
     FOREIGN KEY (meal_plan_id) REFERENCES official_meal_plans(meal_plan_id) ON DELETE CASCADE,
     UNIQUE (patient_id, meal_plan_id)
 );
+
+
