@@ -84,14 +84,17 @@ CREATE TABLE appointments (
 
 -- Chat History table
 CREATE TABLE chat_history (
-    chat_id INT AUTO_INCREMENT PRIMARY KEY,
-    patient_id INT NOT NULL,
-    doctor_id INT NOT NULL,
-    message TEXT NOT NULL,
-    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
-    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
-);
+  chat_id INT NOT NULL AUTO_INCREMENT,
+  patient_id INT NOT NULL,
+  doctor_id INT NOT NULL,
+  sender_type ENUM('doctor', 'patient') NOT NULL,
+  message TEXT NOT NULL,
+  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (chat_id),
+  FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+  FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- Payments table (Patient to Doctor)
 CREATE TABLE payments_doctor (
