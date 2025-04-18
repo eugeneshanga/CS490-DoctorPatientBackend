@@ -59,10 +59,10 @@ def fulfill_doctor_payment(payment_id):
     """
     data = request.get_json() or {}
     cardholder_name = data.get('cardholder_name')
-    card_number     = data.get('card_number')
-    exp_month       = data.get('exp_month')
-    exp_year        = data.get('exp_year')
-    cvv             = data.get('cvv')
+    card_number = data.get('card_number')
+    exp_month = data.get('exp_month')
+    exp_year = data.get('exp_year')
+    cvv = data.get('cvv')
 
     if not all([cardholder_name, card_number, exp_month, exp_year, cvv]):
         return jsonify({"error": "Missing payment detail fields"}), 400
@@ -164,10 +164,10 @@ def fulfill_pharmacy_payment(payment_id):
     """
     data = request.get_json() or {}
     cardholder_name = data.get('cardholder_name')
-    card_number     = data.get('card_number')
-    exp_month       = data.get('exp_month')
-    exp_year        = data.get('exp_year')
-    cvv             = data.get('cvv')
+    card_number = data.get('card_number')
+    exp_month = data.get('exp_month')
+    exp_year = data.get('exp_year')
+    cvv = data.get('cvv')
 
     if not all([cardholder_name, card_number, exp_month, exp_year, cvv]):
         return jsonify({"error": "Missing payment detail fields"}), 400
