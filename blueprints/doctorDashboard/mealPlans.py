@@ -7,6 +7,19 @@ doctor_dashboard_meal_plans_bp = Blueprint('doctor_dashboard_meal_plans', __name
 
 @doctor_dashboard_meal_plans_bp.route('/official/create', methods=['POST'])
 def create_official_mealplan():
+    """
+    Create a new official meal plan.
+    Expects a multipart/form-data request with the following fields:
+      - user_id: The doctor's user_id (as form field or query param)
+      - title: The title of the meal plan (string, required)
+      - description: Description of the meal (optional)
+      - instructions: Preparation/serving instructions (optional)
+      - calories: Numeric value for calories (optional)
+      - fat: Numeric value for fat content (optional)
+      - sugar: Numeric value for sugar content (optional)
+      - ingredients: A comma-separated list of ingredients (string, optional)
+      - image: The image file to upload (optional)
+    """
     user_id = request.form.get('user_id', type=int)
     title = request.form.get('title')
     description = request.form.get('description')
@@ -29,8 +42,12 @@ def create_official_mealplan():
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor()
 
-        # ✅ Hardcoded for testing
-        doctor_id = 1
+        # Convert user_id to doctor_id
+        cursor.execute("SELECT doctor_id FROM doctors WHERE user_id = %s", (user_id,))
+        doctor = cursor.fetchone()
+        if not doctor:
+            return jsonify({"error": "Doctor not found for given user_id"}), 404
+        doctor_id = doctor[0]
 
         insert_sql = """
             INSERT INTO official_meal_plans
@@ -72,8 +89,12 @@ def get_official_mealplans():
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor(dictionary=True)
 
-        # ✅ Hardcoded doctor_id for testing
-        doctor_id = 1
+        # Convert user_id to doctor_id
+        cursor.execute("SELECT doctor_id FROM doctors WHERE user_id = %s", (user_id,))
+        doctor = cursor.fetchone()
+        if not doctor:
+            return jsonify({"error": "Doctor not found for given user_id"}), 404
+        doctor_id = doctor[0]
 
         cursor.execute("""
             SELECT meal_plan_id, title, description, instructions, ingredients,
