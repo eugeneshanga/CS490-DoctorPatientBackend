@@ -82,6 +82,7 @@ def create_patient_mealplan():
         connection.rollback()
         return jsonify({"error": str(err)}), 500
 
+
 @mealplans_bp.route('/patient/all', methods=['GET'])
 def get_patient_mealplans():
     """

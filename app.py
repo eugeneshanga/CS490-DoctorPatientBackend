@@ -16,6 +16,7 @@ from blueprints.patientDashboard.mealplans import mealplans_bp
 from blueprints.doctorDashboard.mealPlans import doctor_dashboard_meal_plans_bp
 from blueprints.paymentsPage.transactions import payment_transaction_bp
 from blueprints.chat import chat_bp
+from blueprints.postAppointment.results import results_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -34,6 +35,7 @@ app.register_blueprint(mealplans_bp)
 app.register_blueprint(doctor_dashboard_meal_plans_bp)
 app.register_blueprint(payment_transaction_bp)
 app.register_blueprint(chat_bp)
+app.register_blueprint(results_bp)
 
 
 # First route!
