@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 
 doctor_dashboard_meal_plans_bp = Blueprint('doctor_dashboard_meal_plans', __name__, url_prefix='/api/doctor-dashboard')
 
+
 @doctor_dashboard_meal_plans_bp.route('/official/create', methods=['POST'])
 def create_official_mealplan():
     """
