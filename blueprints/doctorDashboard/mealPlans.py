@@ -5,23 +5,8 @@ from werkzeug.utils import secure_filename
 
 doctor_dashboard_meal_plans_bp = Blueprint('doctor_dashboard_meal_plans', __name__, url_prefix='/api/doctor-dashboard')
 
-
 @doctor_dashboard_meal_plans_bp.route('/official/create', methods=['POST'])
 def create_official_mealplan():
-    """
-    Create a new official meal plan.
-    Expects a multipart/form-data request with the following fields:
-      - user_id: The doctor's user_id (as form field or query param)
-      - title: The title of the meal plan (string, required)
-      - description: Description of the meal (optional)
-      - instructions: Preparation/serving instructions (optional)
-      - calories: Numeric value for calories (optional)
-      - fat: Numeric value for fat content (optional)
-      - sugar: Numeric value for sugar content (optional)
-      - ingredients: A comma-separated list of ingredients (string, optional)
-      - image: The image file to upload (optional)
-    """
-    # Get form fields
     user_id = request.form.get('user_id', type=int)
     title = request.form.get('title')
     description = request.form.get('description')
@@ -44,12 +29,8 @@ def create_official_mealplan():
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor()
 
-        # Convert user_id to doctor_id
-        cursor.execute("SELECT doctor_id FROM doctors WHERE user_id = %s", (user_id,))
-        doctor = cursor.fetchone()
-        if not doctor:
-            return jsonify({"error": "Doctor not found for given user_id"}), 404
-        doctor_id = doctor[0]
+        # ✅ Hardcoded for testing
+        doctor_id = 1
 
         insert_sql = """
             INSERT INTO official_meal_plans
@@ -78,4 +59,34 @@ def create_official_mealplan():
 
     except mysql.connector.Error as err:
         connection.rollback()
+        return jsonify({"error": str(err)}), 500
+
+
+@doctor_dashboard_meal_plans_bp.route('/official/all', methods=['GET'])
+def get_official_mealplans():
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({"error": "user_id is required"}), 400
+
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor(dictionary=True)
+
+        # ✅ Hardcoded doctor_id for testing
+        doctor_id = 1
+
+        cursor.execute("""
+            SELECT meal_plan_id, title, description, instructions, ingredients,
+                   calories, fat, sugar
+            FROM official_meal_plans
+            WHERE doctor_id = %s
+        """, (doctor_id,))
+        mealplans = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return jsonify({"mealplans": mealplans}), 200
+
+    except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500

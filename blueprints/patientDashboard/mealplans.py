@@ -81,3 +81,41 @@ def create_patient_mealplan():
     except mysql.connector.Error as err:
         connection.rollback()
         return jsonify({"error": str(err)}), 500
+
+@mealplans_bp.route('/patient/all', methods=['GET'])
+def get_patient_mealplans():
+    """
+    Retrieve all meal plans for a given user_id (via query param).
+    """
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({"error": "user_id is required"}), 400
+
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor(dictionary=True)
+
+        # Look up patient_id using user_id
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        result = cursor.fetchone()
+        if not result:
+            return jsonify({"error": "Patient not found for this user_id"}), 404
+
+        patient_id = result['patient_id']
+
+        # Fetch all mealplans for that patient
+        cursor.execute("""
+            SELECT meal_plan_id, title, description, instructions, ingredients,
+                   calories, fat, sugar
+            FROM patient_meal_plans
+            WHERE patient_id = %s
+        """, (patient_id,))
+        mealplans = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return jsonify({"mealplans": mealplans}), 200
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500

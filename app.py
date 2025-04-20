@@ -13,6 +13,7 @@ from blueprints.doctorDashboard.dashboard import doctor_dashboard_bp
 from blueprints.doctorDashboard.payments import doctor_dashboard_payments_bp
 from blueprints.doctorDashboard.appointments import doctor_dashboard_appointments_bp
 from blueprints.patientDashboard.mealplans import mealplans_bp
+from blueprints.doctorDashboard.mealPlans import doctor_dashboard_meal_plans_bp
 from blueprints.paymentsPage.transactions import payment_transaction_bp
 
 app = Flask(__name__)
@@ -29,6 +30,7 @@ app.register_blueprint(doctor_dashboard_bp)
 app.register_blueprint(doctor_dashboard_payments_bp)
 app.register_blueprint(doctor_dashboard_appointments_bp)
 app.register_blueprint(mealplans_bp)
+app.register_blueprint(doctor_dashboard_meal_plans_bp)
 app.register_blueprint(payment_transaction_bp)
 
 
