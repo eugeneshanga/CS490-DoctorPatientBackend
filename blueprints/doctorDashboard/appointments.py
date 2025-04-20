@@ -244,12 +244,13 @@ def get_completed_appointments():
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
 
+
 @doctor_dashboard_appointments_bp.route('/complete', methods=['PATCH'])
 def complete_appointment():
     data = request.get_json()
     appt_id = data.get('appointment_id')
     if not appt_id:
-        return jsonify({"error":"Missing appointment_id"}),400
+        return jsonify({"error": "Missing appointment_id"}), 400
 
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
@@ -260,7 +261,7 @@ def complete_appointment():
              WHERE appointment_id = %s
         """, (appt_id,))
         conn.commit()
-        return jsonify({"message":"Appointment completed"}), 200
+        return jsonify({"message": "Appointment completed"}), 200
 
     except Exception as e:
         print("❌ Error completing appointment:", e)
@@ -269,4 +270,3 @@ def complete_appointment():
     finally:
         cursor.close()
         conn.close()
-
