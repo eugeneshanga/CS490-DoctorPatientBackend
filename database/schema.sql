@@ -82,18 +82,27 @@ CREATE TABLE appointments (
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
 );
 
--- Chat History table
 CREATE TABLE chat_history (
-  chat_id INT NOT NULL AUTO_INCREMENT,
-  patient_id INT NOT NULL,
-  doctor_id INT NOT NULL,
-  sender_type ENUM('doctor', 'patient') NOT NULL,
-  message TEXT NOT NULL,
-  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  chat_id        INT NOT NULL AUTO_INCREMENT,
+  patient_id     INT NOT NULL,
+  doctor_id      INT NOT NULL,
+  appointment_id INT NOT NULL,
+  sender_type    ENUM('doctor','patient') NOT NULL,
+  message        TEXT NOT NULL,
+  sent_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (chat_id),
-  FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
-  FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+  -- lookups by appointment
+  KEY idx_chat_appointment (appointment_id),
+  -- optional composite lookup if you query by doctor+patient frequently
+  KEY idx_chat_doc_pat        (doctor_id, patient_id),
+
+  -- foreign keys
+  CONSTRAINT fk_chat_patient     FOREIGN KEY (patient_id)     REFERENCES patients(patient_id)     ON DELETE CASCADE,
+  CONSTRAINT fk_chat_doctor      FOREIGN KEY (doctor_id)      REFERENCES doctors(doctor_id)      ON DELETE CASCADE,
+  CONSTRAINT fk_chat_appointment FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id) ON DELETE CASCADE
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4;
 
 
 -- Payments table (Patient to Doctor)
