@@ -3,11 +3,11 @@ import mysql.connector
 from config import DB_CONFIG
 from werkzeug.utils import secure_filename
 
-doctor_dashboard_meal_plans_bp = Blueprint('doctor_dashboard_meal_plans', __name__, url_prefix='/api/doctor-dashboard')
+doctor_mealplans_bp = Blueprint('doctor_mealplans', __name__)
 
 
-@doctor_dashboard_meal_plans_bp.route('/official/create', methods=['POST'])
-def create_official_mealplan():
+@doctor_mealplans_bp.route('/api/doctor-dashboard/official/create', methods=['POST'])
+def create_doctor_mealplan():
     """
     Create a new official meal plan.
     Expects a multipart/form-data request with the following fields:
@@ -80,35 +80,62 @@ def create_official_mealplan():
         return jsonify({"error": str(err)}), 500
 
 
-@doctor_dashboard_meal_plans_bp.route('/official/all', methods=['GET'])
-def get_official_mealplans():
-    user_id = request.args.get('user_id', type=int)
+@doctor_mealplans_bp.route('/api/doctor-dashboard/official/all', methods=['GET'])
+def get_doctor_mealplans():
+    user_id = request.args.get("user_id")
+
     if not user_id:
-        return jsonify({"error": "user_id is required"}), 400
+        return jsonify({"error": "Missing user_id"}), 400
 
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
-        cursor = connection.cursor(dictionary=True)
-
-        # Convert user_id to doctor_id
+        cursor = mysql.connection.cursor()
         cursor.execute("SELECT doctor_id FROM doctors WHERE user_id = %s", (user_id,))
-        doctor = cursor.fetchone()
-        if not doctor:
-            return jsonify({"error": "Doctor not found for given user_id"}), 404
-        doctor_id = doctor[0]
+        result = cursor.fetchone()
+        if not result:
+            return jsonify({"error": "Doctor not found"}), 404
+        doctor_id = result[0]
 
         cursor.execute("""
-            SELECT meal_plan_id, title, description, instructions, ingredients,
-                   calories, fat, sugar
+            SELECT meal_plan_id, title, description, ingredients, instructions, 
+                   calories, fat, sugar, image
             FROM official_meal_plans
             WHERE doctor_id = %s
         """, (doctor_id,))
-        mealplans = cursor.fetchall()
+        rows = cursor.fetchall()
 
-        cursor.close()
-        connection.close()
+        mealplans = []
+        for row in rows:
+            mealplans.append({
+                "meal_plan_id": row[0],
+                "title": row[1],
+                "description": row[2],
+                "ingredients": row[3],
+                "instructions": row[4],
+                "calories": row[5],
+                "fat": row[6],
+                "sugar": row[7],
+                "image": row[8].decode('utf-8') if row[8] else None
+            })
 
-        return jsonify({"mealplans": mealplans}), 200
+        return jsonify(mealplans), 200
+    except Exception as e:
+        print("Error fetching doctor mealplans:", e)
+        return jsonify({"error": "Internal server error"}), 500
 
-    except mysql.connector.Error as err:
-        return jsonify({"error": str(err)}), 500
+    
+@doctor_mealplans_bp.route('/api/doctor-dashboard/official/delete', methods=['POST'])
+def delete_doctor_mealplan():
+    meal_plan_id = request.form.get("meal_plan_id")
+
+    if not meal_plan_id:
+        return jsonify({"error": "Missing meal_plan_id"}), 400
+
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("DELETE FROM official_meal_plans WHERE meal_plan_id = %s", (meal_plan_id,))
+        mysql.connection.commit()
+
+        return jsonify({"message": "Mealplan deleted successfully"}), 200
+    except Exception as e:
+        print("Error deleting mealplan:", e)
+        return jsonify({"error": "Internal server error"}), 500

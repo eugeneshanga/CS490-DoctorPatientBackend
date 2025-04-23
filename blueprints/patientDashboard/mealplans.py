@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 import mysql.connector
+import base64
 from config import DB_CONFIG
 
 # Create a blueprint for meal plan endpoints
@@ -106,17 +107,36 @@ def get_patient_mealplans():
 
         # Fetch all mealplans for that patient
         cursor.execute("""
-            SELECT meal_plan_id, title, description, instructions, ingredients,
-                   calories, fat, sugar
+            SELECT meal_plan_id, title, description, instructions, ingredients, calories, fat, sugar, image
             FROM patient_meal_plans
             WHERE patient_id = %s
         """, (patient_id,))
         mealplans = cursor.fetchall()
+        
+        for plan in mealplans:
+            if plan.get("image"):
+                plan["image"] = base64.b64encode(plan["image"]).decode("utf-8")
 
         cursor.close()
         connection.close()
 
         return jsonify({"mealplans": mealplans}), 200
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+
+@mealplans_bp.route('/delete/<int:meal_plan_id>', methods=['DELETE'])
+def delete_mealplan(meal_plan_id):
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor()
+
+        cursor.execute("DELETE FROM patient_meal_plans WHERE meal_plan_id = %s", (meal_plan_id,))
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+        return jsonify({"message": "Meal plan deleted"}), 200
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
