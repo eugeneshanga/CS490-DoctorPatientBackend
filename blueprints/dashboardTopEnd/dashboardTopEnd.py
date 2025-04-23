@@ -4,6 +4,7 @@ from config import DB_CONFIG
 
 dashboard_top_end_bp = Blueprint('dashboard_top_end_bp', __name__)
 
+
 @dashboard_top_end_bp.route('/api/dashboard/user-info', methods=['POST'])
 def get_dashboard_user_info():
     try:
@@ -54,7 +55,7 @@ def get_dashboard_user_info():
     except Exception as e:
         print(f"💥 Internal Server Error: {e}")
         return jsonify({'error': 'Internal server error'}), 500
-    
+
 
 @dashboard_top_end_bp.route('/api/dashboard/update-info', methods=['POST'])
 def update_user_info():
