@@ -274,3 +274,12 @@ CREATE TABLE pharmacy_payment_details (
     REFERENCES payments_pharmacy(payment_id)
     ON DELETE CASCADE
 );
+
+-- Preferred‐Pharmacy lookup for patients
+CREATE TABLE patient_preferred_pharmacy (
+  patient_id   INT PRIMARY KEY,
+  pharmacy_id  INT NOT NULL,
+  assigned_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (patient_id)  REFERENCES patients(patient_id)  ON DELETE CASCADE,
+  FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(pharmacy_id) ON DELETE CASCADE
+);

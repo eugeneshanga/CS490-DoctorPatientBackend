@@ -12,56 +12,69 @@ registration_bp = Blueprint('registration', __name__)
 @registration_bp.route('/api/register/patient', methods=['POST'])
 def register_patient():
     data = request.get_json()
-
-    # Extract fields
-    email = data.get('email')
-    password = data.get('password')
-    first_name = data.get('first_name')
-    last_name = data.get('last_name')
-    address = data.get('address')
+    email        = data.get('email')
+    password     = data.get('password')
+    first_name   = data.get('first_name')
+    last_name    = data.get('last_name')
+    address      = data.get('address')
     phone_number = data.get('phone_number')
-    zip_code = data.get('zip_code')
+    zip_code     = data.get('zip_code')
 
-    # Validate required fields
-    if not email or not password or not first_name or not last_name:
+    if not email or not password or not first_name or not last_name or not zip_code:
         return jsonify({"error": "Missing required fields"}), 400
 
-    # Hash the password using bcrypt
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'),
+                                     bcrypt.gensalt()).decode('utf-8')
 
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
-        cursor = connection.cursor()
+        conn   = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor()
 
-        # Step 1: Insert into users
-        insert_user = (
-            "INSERT INTO users (email, password_hash, user_type) "
-            "VALUES (%s, %s, 'patient')"
-        )
-        cursor.execute(insert_user, (email, hashed_password))
+        # 1) users
+        cursor.execute("""
+            INSERT INTO users (email, password_hash, user_type)
+            VALUES (%s, %s, 'patient')
+        """, (email, hashed_password))
         user_id = cursor.lastrowid
 
-        # Step 2: Insert into patients
-        insert_patient = (
-            "INSERT INTO patients (user_id, first_name, last_name, address, phone_number, zip_code) "
-            "VALUES (%s, %s, %s, %s, %s, %s)"
-        )
-        values = (user_id, first_name, last_name, address, phone_number, zip_code)
-        cursor.execute(insert_patient, values)
+        # 2) patients
+        cursor.execute("""
+            INSERT INTO patients
+              (user_id, first_name, last_name, address, phone_number, zip_code)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (user_id, first_name, last_name, address, phone_number, zip_code))
+        patient_id = cursor.lastrowid
 
-        connection.commit()
-        return jsonify({"message": "Patient registered successfully"}), 201
+        # 3) Find the closest pharmacy by ZIP difference
+        cursor.execute("""
+            SELECT pharmacy_id
+              FROM pharmacies
+             WHERE zip_code REGEXP '^[0-9]+$'
+             ORDER BY ABS(CAST(zip_code AS SIGNED) - CAST(%s AS SIGNED))
+             LIMIT 1
+        """, (zip_code,))
+        row = cursor.fetchone()
+        if row:
+            preferred_pharmacy_id = row[0]
+            # 4) Insert into patient_preferred_pharmacy
+            cursor.execute("""
+                INSERT INTO patient_preferred_pharmacy
+                  (patient_id, pharmacy_id)
+                VALUES (%s, %s)
+            """, (patient_id, preferred_pharmacy_id))
+
+        conn.commit()
+        return jsonify({"message": "Patient registered successfully",
+                        "preferred_pharmacy_id": preferred_pharmacy_id}), 201
 
     except mysql.connector.Error as err:
-        print("Database error:", err)
-        connection.rollback()
-        return jsonify({"error": str(err)}), 500
+        conn.rollback()
+        current_app.logger.error("Registration error: %s", err)
+        return jsonify({"error": "Internal server error"}), 500
 
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        cursor.close()
+        conn.close()
 
 
 # ------------------------------------

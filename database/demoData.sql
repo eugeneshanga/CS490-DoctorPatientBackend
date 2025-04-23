@@ -4,7 +4,9 @@ USE weight_loss_clinic;
 INSERT INTO users (email, password_hash, user_type) VALUES
 ('jane.doe@example.com', '$2b$12$gNhYhBS1n66b3YrhFD94neI5AlOiw98vi.S7TCS.5HB8.0cCoAtyy', 'patient'),
 ('dr.smith@example.com', '$2b$12$mJcqyCWMyyj7I9xiSz8cHO66SlD6ByAx/6Xnudg0f8KZH3JwyNbke', 'doctor'),
-('goodhealthrx@example.com', '$2b$12$QKo92f1qMctTcsL3qXzWh.N.j2pX0ObB71vtKCDZux0F1rFli3uCO', 'pharmacy');
+('goodhealthrx@example.com', '$2b$12$QKo92f1qMctTcsL3qXzWh.N.j2pX0ObB71vtKCDZux0F1rFli3uCO', 'pharmacy'),
+('citymeds@example.com',    '$2b$12$QKo92f1qMctTcsL3qXzWh.N.j2pX0ObB71vtKCDZux0F1rFli3uCO', 'pharmacy'),
+('neighborhoodpharm@example.com', '$2b$12$QKo92f1qMctTcsL3qXzWh.N.j2pX0ObB71vtKCDZux0F1rFli3uCO', 'pharmacy');
 
 -- Insert patient
 INSERT INTO patients (user_id, first_name, last_name, address, phone_number, zip_code) VALUES
@@ -16,7 +18,9 @@ INSERT INTO doctors (user_id, license_number, first_name, last_name, address, ph
 
 -- Insert pharmacy
 INSERT INTO pharmacies (user_id, name, address, zip_code, phone_number, license_number) VALUES
-(3, 'GoodHealth Pharmacy', '789 Pine Road', '10002', '555-9012', 'PHARM99999');
+(3, 'GoodHealth Pharmacy', '789 Pine Road', '10002', '555-9012', 'PHARM99999'),
+(4, 'CityMeds Pharmacy', '101 Main Street', '10010', '555-2222', 'PHARM10010'),
+(5, 'Neighborhood Pharmacy', '202 Oak Boulevard', '07001', '555-3333', 'PHARM07001');
 
 -- Doctor-Patient relationship
 INSERT INTO doctor_patient (doctor_id, patient_id) VALUES (1, 1);
