@@ -12,22 +12,21 @@ registration_bp = Blueprint('registration', __name__)
 @registration_bp.route('/api/register/patient', methods=['POST'])
 def register_patient():
     data = request.get_json()
-    email        = data.get('email')
-    password     = data.get('password')
-    first_name   = data.get('first_name')
-    last_name    = data.get('last_name')
-    address      = data.get('address')
+    email = data.get('email')
+    password = data.get('password')
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    address = data.get('address')
     phone_number = data.get('phone_number')
-    zip_code     = data.get('zip_code')
+    zip_code = data.get('zip_code')
 
     if not email or not password or not first_name or not last_name or not zip_code:
         return jsonify({"error": "Missing required fields"}), 400
 
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'),
-                                     bcrypt.gensalt()).decode('utf-8')
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     try:
-        conn   = mysql.connector.connect(**DB_CONFIG)
+        conn = mysql.connector.connect(**DB_CONFIG)
         cursor = conn.cursor()
 
         # 1) users
@@ -67,9 +66,8 @@ def register_patient():
         return jsonify({"message": "Patient registered successfully",
                         "preferred_pharmacy_id": preferred_pharmacy_id}), 201
 
-    except mysql.connector.Error as err:
+    except mysql.connector.Error:
         conn.rollback()
-        current_app.logger.error("Registration error: %s", err)
         return jsonify({"error": "Internal server error"}), 500
 
     finally:
