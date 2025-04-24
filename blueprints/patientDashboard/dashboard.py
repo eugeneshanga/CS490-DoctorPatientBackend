@@ -88,7 +88,7 @@ def get_preferred_pharmacy():
         return jsonify(error="Missing query parameter: user_id"), 400
 
     try:
-        conn   = mysql.connector.connect(**DB_CONFIG)
+        conn = mysql.connector.connect(**DB_CONFIG)
         cursor = conn.cursor(dictionary=True)
 
         # Ensure this user is a patient
