@@ -96,7 +96,7 @@ def get_doctor_mealplans():
         doctor_id = result[0]
 
         cursor.execute("""
-            SELECT meal_plan_id, title, description, ingredients, instructions, 
+            SELECT meal_plan_id, title, description, ingredients, instructions,
                    calories, fat, sugar, image
             FROM official_meal_plans
             WHERE doctor_id = %s
@@ -122,7 +122,7 @@ def get_doctor_mealplans():
         print("Error fetching doctor mealplans:", e)
         return jsonify({"error": "Internal server error"}), 500
 
-    
+
 @doctor_mealplans_bp.route('/api/doctor-dashboard/official/delete', methods=['POST'])
 def delete_doctor_mealplan():
     meal_plan_id = request.form.get("meal_plan_id")
