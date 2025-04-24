@@ -104,8 +104,13 @@ def get_doctor_mealplans():
 
         # Fetch all meal plans
         cursor.execute("""
+        new-pharmacy
             SELECT meal_plan_id, title, description, ingredients, instructions, 
                    calories, fat, sugar
+                   
+            SELECT meal_plan_id, title, description, ingredients, instructions,
+                   calories, fat, sugar, image
+        main
             FROM official_meal_plans
             WHERE doctor_id = %s
         """, (doctor_id,))
@@ -132,6 +137,16 @@ def get_doctor_mealplans():
         print("Error fetching doctor mealplans:", e)
         return jsonify({"error": "Internal server error"}), 500
 
+        new-pharmacy
+
+
+@doctor_mealplans_bp.route('/api/doctor-dashboard/official/delete', methods=['POST'])
+def delete_doctor_mealplan():
+    meal_plan_id = request.form.get("meal_plan_id")
+
+    if not meal_plan_id:
+        return jsonify({"error": "Missing meal_plan_id"}), 400
+        main
 
 @doctor_mealplans_bp.route('/delete/<int:meal_plan_id>', methods=['DELETE'])
 def delete_doctor_mealplan(meal_plan_id):
@@ -151,6 +166,7 @@ def delete_doctor_mealplan(meal_plan_id):
     except Exception as e:
         print("Error deleting mealplan:", e)
         return jsonify({"error": "Internal server error"}), 500
+        new-pharmacy
 
 
 @doctor_mealplans_bp.route('/image/<int:meal_plan_id>', methods=['GET'])
@@ -176,3 +192,5 @@ def get_mealplan_image(meal_plan_id):
     except Exception as e:
         print("Error serving image:", e)
         return jsonify({"error": "Internal server error"}), 500
+
+        main
