@@ -77,6 +77,53 @@ def search_doctors():
         return jsonify({"error": str(err)}), 500
 
 
+@patient_dashboard_bp.route('/preferred_pharmacy', methods=['GET'])
+def get_preferred_pharmacy():
+    """
+    Endpoint to get a patient's preferred pharmacy based on user_id input
+    Returns Pharmacy ID, Name, Address, Zip Code and Phone Number
+    """
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify(error="Missing query parameter: user_id"), 400
+
+    try:
+        conn   = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor(dictionary=True)
+
+        # Ensure this user is a patient
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify(error=f"User {user_id} is not a patient"), 404
+
+        # Lookup preferred pharmacy
+        cursor.execute("""
+            SELECT ph.pharmacy_id,
+                   ph.name,
+                   ph.address,
+                   ph.zip_code,
+                   ph.phone_number
+              FROM patient_preferred_pharmacy pp
+              JOIN pharmacies ph
+                ON pp.pharmacy_id = ph.pharmacy_id
+             WHERE pp.patient_id = %s
+        """, (patient['patient_id'],))
+        pref = cursor.fetchone()
+        if not pref:
+            return jsonify(error="No preferred pharmacy set"), 404
+
+        return jsonify(pref), 200
+
+    except mysql.connector.Error as err:
+        print("❌ Error fetching preferred pharmacy:", err)
+        return jsonify(error="Internal server error"), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
 @patient_dashboard_bp.route('/meal-plans', methods=['GET'])
 def get_meal_plans():
     """

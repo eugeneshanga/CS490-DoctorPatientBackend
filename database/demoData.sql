@@ -52,3 +52,6 @@ INSERT INTO payments_doctor (doctor_id, patient_id, amount, is_fulfilled) VALUES
 INSERT INTO payments_pharmacy (pharmacy_id, patient_id, amount, is_fulfilled) VALUES
 (1, 1, 45.50, TRUE),
 (1, 1, 60.75, FALSE); -- example of a pending payment
+
+INSERT INTO patient_preferred_pharmacy (patient_id, pharmacy_id)
+VALUES (1, 3);
