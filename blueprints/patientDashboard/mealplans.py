@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 import mysql.connector
-import base64
 from config import DB_CONFIG
 
 # Create a blueprint for meal plan endpoints
@@ -107,15 +106,11 @@ def get_patient_mealplans():
 
         # Fetch all mealplans for that patient
         cursor.execute("""
-            SELECT meal_plan_id, title, description, instructions, ingredients, calories, fat, sugar, image
+            SELECT meal_plan_id, title, description, instructions, ingredients, calories, fat, sugar
             FROM patient_meal_plans
             WHERE patient_id = %s
         """, (patient_id,))
         mealplans = cursor.fetchall()
-        
-        for plan in mealplans:
-            if plan.get("image"):
-                plan["image"] = base64.b64encode(plan["image"]).decode("utf-8")
 
         cursor.close()
         connection.close()
