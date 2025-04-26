@@ -9,7 +9,7 @@ INSERT INTO users (email, password_hash, user_type) VALUES
 ('neighborhoodpharm@example.com', '$2b$12$QKo92f1qMctTcsL3qXzWh.N.j2pX0ObB71vtKCDZux0F1rFli3uCO', 'pharmacy'),
 ('dr.jones@example.com', '$2b$12$PU2bIEsqAbSRYpsaUmt1LelQDOQZqMgxAmkR9B81PCH5Ra2dubbhy', 'doctor'),
 ('dr.lee@example.com',  '$2b$12$zvxJm/HBicsnZDP1Zfstiu0UGz7H679c0CgyHK/lZGtkuKCezJewW', 'doctor'),
-('dr.brown@example.com', '', 'doctor');
+('dr.brown@example.com', '$2b$12$SgQR2JV3iLekKSQ8QO8AeOlgDW3OYDX2FL4RkgOiduKrkFYP/j7Sq', 'doctor');
 
 -- Insert patient
 INSERT INTO patients (user_id, first_name, last_name, address, phone_number, zip_code) VALUES
