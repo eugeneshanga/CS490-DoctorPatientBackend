@@ -112,7 +112,7 @@ def get_patient_mealplans():
             WHERE patient_id = %s
         """, (patient_id,))
         mealplans = cursor.fetchall()
-        
+
         for plan in mealplans:
             if plan.get("image"):
                 plan["image"] = base64.b64encode(plan["image"]).decode("utf-8")
@@ -124,6 +124,7 @@ def get_patient_mealplans():
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
+
 
 @mealplans_bp.route('/delete/<int:meal_plan_id>', methods=['DELETE'])
 def delete_mealplan(meal_plan_id):
