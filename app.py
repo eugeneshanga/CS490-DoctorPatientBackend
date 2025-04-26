@@ -20,6 +20,7 @@ from blueprints.paymentsPage.transactions import payment_transaction_bp
 from blueprints.chat import chat_bp
 from blueprints.postAppointment.results import results_bp
 from blueprints.postAppointment.ratings import ratings_bp
+from blueprints.doctorReviews.getDoctorReviews import reviews_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -42,6 +43,7 @@ app.register_blueprint(payment_transaction_bp)
 app.register_blueprint(chat_bp)
 app.register_blueprint(results_bp)
 app.register_blueprint(ratings_bp)
+app.register_blueprint(reviews_bp)
 
 
 # First route!

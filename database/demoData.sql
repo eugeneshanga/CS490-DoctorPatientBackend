@@ -8,7 +8,8 @@ INSERT INTO users (email, password_hash, user_type) VALUES
 ('citymeds@example.com',    '$2b$12$QKo92f1qMctTcsL3qXzWh.N.j2pX0ObB71vtKCDZux0F1rFli3uCO', 'pharmacy'),
 ('neighborhoodpharm@example.com', '$2b$12$QKo92f1qMctTcsL3qXzWh.N.j2pX0ObB71vtKCDZux0F1rFli3uCO', 'pharmacy'),
 ('dr.jones@example.com', '$2b$12$PU2bIEsqAbSRYpsaUmt1LelQDOQZqMgxAmkR9B81PCH5Ra2dubbhy', 'doctor'),
-('dr.lee@example.com',  '$2b$12$zvxJm/HBicsnZDP1Zfstiu0UGz7H679c0CgyHK/lZGtkuKCezJewW', 'doctor');
+('dr.lee@example.com',  '$2b$12$zvxJm/HBicsnZDP1Zfstiu0UGz7H679c0CgyHK/lZGtkuKCezJewW', 'doctor'),
+('dr.brown@example.com', '', 'doctor');
 
 -- Insert patient
 INSERT INTO patients (user_id, first_name, last_name, address, phone_number, zip_code) VALUES
@@ -18,7 +19,8 @@ INSERT INTO patients (user_id, first_name, last_name, address, phone_number, zip
 INSERT INTO doctors (user_id, license_number, first_name, last_name, address, phone_number, ssn) VALUES
 (2, 'DOC123456', 'John', 'Smith', '456 Oak Avenue', '555-5678', '123-45-6789'),
 (6, 'DOC222333', 'Alice',  'Jones', '234 Birch Lane',   '555-3456', '234-56-7890'),
-(7, 'DOC444555', 'Robert', 'Lee',   '345 Maple Street', '555-4567', '345-67-8901');
+(7, 'DOC444555', 'Robert', 'Lee',   '345 Maple Street', '555-4567', '345-67-8901'),
+(8, 'DOC777888', 'Emily', 'Brown', '678 Cedar Avenue', '555-7777', '987-65-4321');
 
 -- Insert pharmacy
 INSERT INTO pharmacies (user_id, name, address, zip_code, phone_number, license_number) VALUES
@@ -39,9 +41,12 @@ INSERT INTO medical_metrics (patient_id, weight, height, caloric_intake, recorde
 
 -- Insert appointments
 INSERT INTO appointments (doctor_id, patient_id, appointment_time, status) VALUES
-(1, 1, NOW() + INTERVAL 1 DAY, 'accepted'),
-(1, 1, NOW() - INTERVAL 2 DAY, 'completed'),
-(1, 1, NOW() - INTERVAL 5 DAY, 'canceled');
+(1, 1, NOW() - INTERVAL 10 DAY, 'completed'),
+(1, 1, NOW() - INTERVAL  5 DAY, 'completed'),
+(1, 1, NOW() - INTERVAL 5 DAY, 'canceled'),
+(2, 1, NOW() - INTERVAL  8 DAY, 'completed'),
+(3, 1, NOW() - INTERVAL  6 DAY, 'completed'),
+(4, 1, NOW() - INTERVAL  2 DAY, 'completed');
 
 -- Insert payments to doctor
 INSERT INTO payments_doctor (doctor_id, patient_id, amount, is_fulfilled) VALUES
@@ -51,7 +56,23 @@ INSERT INTO payments_doctor (doctor_id, patient_id, amount, is_fulfilled) VALUES
 -- Insert payments to pharmacy
 INSERT INTO payments_pharmacy (pharmacy_id, patient_id, amount, is_fulfilled) VALUES
 (1, 1, 45.50, TRUE),
-(1, 1, 60.75, FALSE); -- example of a pending payment
+(1, 1, 60.75, FALSE);
 
 INSERT INTO patient_preferred_pharmacy (patient_id, pharmacy_id)
 VALUES (1, 3);
+
+INSERT INTO ratings (patient_id, doctor_id, appointment_id, rating, review) VALUES
+(1, 1,             1, 4.5, 'Fantastic care by Dr. Smith'),
+(1, 1,             2, 3.5, 'Good, but felt rushed'),
+(1, 2,             3,  5.0, 'Dr. Jones was thorough and kind'),
+(1, 3,             4,    3.5, 'Very helpful advice'),
+(1, 4,   5,  4.5, 'Dr. Brown was outstanding');
+
+TRUNCATE TABLE doctor_ratings;
+INSERT INTO doctor_ratings (doctor_id, total_ratings, average_rating)
+SELECT
+  doctor_id,
+  COUNT(*)        AS total_ratings,
+  ROUND(AVG(rating), 2) AS average_rating
+FROM ratings
+GROUP BY doctor_id;
