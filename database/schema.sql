@@ -229,6 +229,17 @@ CREATE TABLE official_meal_plans (
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
 );
 
+-- Allows Doctor To Assign Mealplan to Patients
+CREATE TABLE doctor_assign_patient_mealplan (
+    assignment_id INT AUTO_INCREMENT PRIMARY KEY,
+    doctor_id INT NOT NULL,
+    patient_id INT NOT NULL,
+    message TEXT NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
+);
+
 -- Mapping Table: To assign a doctor's official meal plan to multiple patients.
 CREATE TABLE patient_assigned_meal_plans (
     assignment_id INT AUTO_INCREMENT PRIMARY KEY,

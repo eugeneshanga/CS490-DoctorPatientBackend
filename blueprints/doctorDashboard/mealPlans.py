@@ -129,3 +129,86 @@ def delete_official_meal_plan(meal_plan_id):
             connection.close()
         except:
             pass
+
+# ASSIGN MEAL PLAN TO PATIENTS
+@doctor_mealplans_bp.route("/doctor-dashboard/assign-mealplan", methods=["POST"])
+def assign_mealplan_to_patient():
+    try:
+        data = request.get_json()
+        doctor_id = data.get("doctor_id")
+        patient_id = data.get("patient_id")
+        message = data.get("message")
+
+        if not (doctor_id and patient_id and message):
+            return jsonify({"error": "Missing fields"}), 400
+
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            INSERT INTO doctor_assign_patient_mealplan (doctor_id, patient_id, message)
+            VALUES (%s, %s, %s)
+        """, (doctor_id, patient_id, message))
+        connection.commit()
+
+        return jsonify({"message": "Mealplan assigned successfully"}), 201
+
+    except Exception as e:
+        print("🔥 Error assigning mealplan message:", e)
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        try:
+            cursor.close()
+            connection.close()
+        except:
+            pass
+
+@doctor_mealplans_bp.route("/patient-dashboard/assigned-mealplans", methods=["GET"])
+def get_assigned_mealplans():
+    try:
+        user_id = request.args.get("user_id")
+
+        if not user_id:
+            return jsonify({"error": "Missing user_id"}), 400
+
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor()
+
+        # Get patient_id from user_id
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({"error": "Patient not found for this user_id"}), 404
+        patient_id = row[0]
+
+        # Now fetch messages
+        cursor.execute("""
+            SELECT assignment_id, doctor_id, message, assigned_at
+            FROM doctor_assign_patient_mealplan
+            WHERE patient_id = %s
+            ORDER BY assigned_at DESC
+        """, (patient_id,))
+        result = cursor.fetchall()
+
+        messages = []
+        for row in result:
+            messages.append({
+                "assignment_id": row[0],
+                "doctor_id": row[1],
+                "message": row[2],
+                "assigned_at": row[3].strftime('%Y-%m-%d %H:%M:%S')
+            })
+
+        return jsonify({"messages": messages}), 200
+
+    except Exception as e:
+        print("🔥 Error fetching assigned mealplans:", e)
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        try:
+            cursor.close()
+            connection.close()
+        except:
+            pass
