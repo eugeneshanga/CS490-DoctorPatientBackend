@@ -283,3 +283,14 @@ CREATE TABLE patient_preferred_pharmacy (
   FOREIGN KEY (patient_id)  REFERENCES patients(patient_id)  ON DELETE CASCADE,
   FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(pharmacy_id) ON DELETE CASCADE
 );
+
+CREATE TABLE reply_comments (
+    comment_id INT AUTO_INCREMENT PRIMARY KEY,
+    reply_id INT NOT NULL,
+    patient_id INT NOT NULL,
+    content TEXT NOT NULL,
+    commented_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (reply_id) REFERENCES post_replies(reply_id) ON DELETE CASCADE,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id)
+);
+
