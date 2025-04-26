@@ -5,6 +5,7 @@ from config import DB_CONFIG
 
 reviews_bp = Blueprint('reviews', __name__, url_prefix='/api/reviews')
 
+
 @reviews_bp.route('/top-doctors', methods=['GET'])
 def top_doctors():
     """
