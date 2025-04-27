@@ -198,20 +198,35 @@ CREATE TABLE doctor_ratings (
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
 );
 
+CREATE TABLE weight_loss_drugs (
+    drug_id    INT AUTO_INCREMENT PRIMARY KEY,
+    name       VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT
+);
+
+-- Our Five Drugs
+INSERT INTO weight_loss_drugs (name, description) VALUES
+  ('Orlistat',        'Lipase inhibitor to reduce fat absorption'),
+  ('Phentermine',     'Appetite suppressant'),
+  ('Lorcaserin',      'Serotonin receptor agonist for satiety'),
+  ('Liraglutide',     'GLP-1 analog to regulate appetite'),
+  ('Semaglutide',     'GLP-1 receptor agonist for weight management');
+
 -- Prescriptions table
 CREATE TABLE prescriptions (
     prescription_id INT AUTO_INCREMENT PRIMARY KEY,
-    doctor_id INT NOT NULL,
-    patient_id INT NOT NULL,
-    pharmacy_id INT NULL,
-    medication_name VARCHAR(255) NOT NULL,
-    dosage VARCHAR(255) NOT NULL,
-    instructions TEXT NOT NULL,
-    status ENUM('pending', 'dispensed', 'cancelled') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE,
-    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
-    FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(pharmacy_id) ON DELETE SET NULL
+    doctor_id       INT NOT NULL,
+    patient_id      INT NOT NULL,
+    pharmacy_id     INT        NULL,
+    drug_id         INT        NOT NULL,
+    dosage          VARCHAR(255) NOT NULL,
+    instructions    TEXT         NOT NULL,
+    status          ENUM('pending', 'filled','dispensed','cancelled') DEFAULT 'pending',
+    created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (doctor_id)   REFERENCES doctors(doctor_id)     ON DELETE CASCADE,
+    FOREIGN KEY (patient_id)  REFERENCES patients(patient_id)   ON DELETE CASCADE,
+    FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(pharmacy_id) ON DELETE SET NULL,
+    FOREIGN KEY (drug_id)     REFERENCES weight_loss_drugs(drug_id) ON DELETE RESTRICT
 );
 
 CREATE TABLE official_meal_plans (

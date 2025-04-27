@@ -167,41 +167,65 @@ def get_meal_plans():
 
 
 @patient_dashboard_bp.route('/prescriptions', methods=['GET'])
-def get_prescriptions():
+def list_patient_prescriptions():
     """
-    Endpoint to fetch all prescriptions for a given patient.
-    Now expects a query parameter `user_id` and then looks up the corresponding patient_id.
-    Returns a list of prescriptions.
+    Returns all pending prescriptions for the logged‐in patient.
+    Query param: user_id
+    Response JSON: [
+      {
+        "prescription_id": 12,
+        "drug_id": 3,
+        "drug_name": "Ozempic",
+        "dosage": "0.5mg",
+        "instructions": "Once weekly",
+        "status": "pending",
+        "requested_at": "2025-04-20 14:23:00"
+      },
+      …
+    ]
     """
-    user_id = request.args.get('user_id', type=int)
-
+    user_id = request.args.get('user_id')
     if not user_id:
-        return jsonify({"error": "user_id query parameter is required"}), 400
+        return jsonify(error="Missing query param: user_id"), 400
 
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
-        cursor = connection.cursor(dictionary=True)
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cur = conn.cursor(dictionary=True)
 
-        # Convert user_id to patient_id
-        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
-        patient = cursor.fetchone()
-        if not patient:
-            return jsonify({"error": "Patient not found for the given user_id"}), 404
-        patient_id = patient["patient_id"]
+        # 1) resolve patient_id
+        cur.execute(
+            "SELECT patient_id FROM patients WHERE user_id = %s",
+            (user_id,)
+        )
+        row = cur.fetchone()
+        if not row:
+            return jsonify(error="Patient not found for this user_id"), 404
+        patient_id = row['patient_id']
 
-        sql = """
-            SELECT prescription_id, doctor_id, patient_id, pharmacy_id, medication_name,
-                   dosage, instructions, status, created_at
-            FROM prescriptions
-            WHERE patient_id = %s
-            ORDER BY created_at DESC
-        """
-        cursor.execute(sql, (patient_id,))
-        prescriptions = cursor.fetchall()
+        # 2) get pending prescriptions
+        cur.execute("""
+            SELECT
+              p.prescription_id,
+              p.drug_id,
+              d.name AS drug_name,
+              p.dosage,
+              p.instructions,
+              p.status,
+              p.created_at AS requested_at
+            FROM prescriptions p
+            JOIN weight_loss_drugs d ON p.drug_id = d.drug_id
+            WHERE p.patient_id = %s
+              AND p.status = 'pending'
+            ORDER BY p.created_at DESC
+        """, (patient_id,))
 
-        cursor.close()
-        connection.close()
+        prescriptions = cur.fetchall()
         return jsonify(prescriptions), 200
 
     except mysql.connector.Error as err:
-        return jsonify({"error": str(err)}), 500
+        print(err)
+        return jsonify(error="Internal server error"), 500
+
+    finally:
+        cur.close()
+        conn.close()
