@@ -10,9 +10,9 @@ INSERT INTO users (email, password_hash, user_type) VALUES
 ('dr.jones@example.com', '$2b$12$PU2bIEsqAbSRYpsaUmt1LelQDOQZqMgxAmkR9B81PCH5Ra2dubbhy', 'doctor'),
 ('dr.lee@example.com',  '$2b$12$zvxJm/HBicsnZDP1Zfstiu0UGz7H679c0CgyHK/lZGtkuKCezJewW', 'doctor'),
 ('dr.brown@example.com', '$2b$12$SgQR2JV3iLekKSQ8QO8AeOlgDW3OYDX2FL4RkgOiduKrkFYP/j7Sq', 'doctor'),
-('emily.stevens@example.com', '', 'patient'),
-('michael.brown@example.com', '', 'patient'),
-('sophia.johnson@example.com', '', 'patient');
+('emily.stevens@example.com', '$2b$12$I3QXfmI5V7tJmBZZwyzz3uGNxs8FYY85tr2l6rbRgqw2qoy0Z2dAu', 'patient'),
+('michael.brown@example.com', '$2b$12$jj0HhVkr90wtnlypNJoM3ufczq6XsuepEbH28YcMEO5VGwcwVBri.', 'patient'),
+('sophia.johnson@example.com', '$2b$12$4b.19eBeIj2xWdMA06sJyecuO8WNd88D8qRIZkON0/ihQkR3T1djm', 'patient');
 
 -- Insert patient
 INSERT INTO patients (user_id, first_name, last_name, address, phone_number, zip_code) VALUES
