@@ -309,3 +309,11 @@ CREATE TABLE reply_comments (
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id)
 );
 
+CREATE TABLE pharmacy_drug_prices (
+  pharmacy_id INT       NOT NULL,
+  drug_id     INT       NOT NULL,
+  price       DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (pharmacy_id, drug_id),
+  FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(pharmacy_id) ON DELETE CASCADE,
+  FOREIGN KEY (drug_id)     REFERENCES weight_loss_drugs(drug_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
