@@ -166,7 +166,7 @@ def get_meal_plans():
         return jsonify({"error": str(err)}), 500
 
 
-@patient_dashboard_bp.route('/prescriptions', methods=['GET'])
+@patient_dashboard_bp.route('/pending-prescriptions', methods=['GET'])
 def list_patient_prescriptions():
     """
     Returns all pending prescriptions for the logged‐in patient.
@@ -229,3 +229,52 @@ def list_patient_prescriptions():
     finally:
         cur.close()
         conn.close()
+
+@patient_dashboard_bp.route('/prescriptions/filled', methods=['GET'])
+def get_filled_prescriptions():
+    """
+    Return all filled prescriptions for a patient, newest first.
+    Query param: ?user_id=<user_id>
+    """
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify(error="user_id is required"), 400
+
+    conn = mysql.connector.connect(**DB_CONFIG)
+    cursor = conn.cursor(dictionary=True)
+
+    # Look up the patient_id
+    cursor.execute(
+        "SELECT patient_id FROM patients WHERE user_id = %s",
+        (user_id,)
+    )
+    row = cursor.fetchone()
+    if not row:
+        cursor.close()
+        conn.close()
+        return jsonify(error="No patient found for that user"), 404
+    patient_id = row['patient_id']
+
+    # Fetch all filled prescriptions
+    cursor.execute("""
+        SELECT
+          pr.prescription_id,
+          wd.name         AS drug_name,
+          pr.dosage,
+          pr.instructions,
+          pr.status,
+          pr.created_at   AS requested_at
+        FROM prescriptions pr
+        JOIN weight_loss_drugs wd
+          ON pr.drug_id = wd.drug_id
+        WHERE pr.patient_id = %s
+          AND pr.status     = 'filled'
+        ORDER BY pr.created_at DESC;
+    """, (patient_id,))
+
+    filled = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return jsonify(filled)
+
