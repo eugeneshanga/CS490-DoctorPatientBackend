@@ -162,20 +162,32 @@ def register_pharmacy():
         cursor = connection.cursor()
 
         # Step 1: Insert into users table
-        insert_user = (
-            "INSERT INTO users (email, password_hash, user_type) "
-            "VALUES (%s, %s, 'pharmacy')"
+        cursor.execute(
+            "INSERT INTO users (email, password_hash, user_type) VALUES (%s, %s, 'pharmacy')",
+            (email, hashed_password)
         )
-        cursor.execute(insert_user, (email, hashed_password))
         user_id = cursor.lastrowid
 
         # Step 2: Insert into pharmacies table
-        insert_pharmacy = (
-            "INSERT INTO pharmacies (user_id, name, address, zip_code, phone_number, license_number) "
-            "VALUES (%s, %s, %s, %s, %s, %s)"
+        cursor.execute(
+            """
+            INSERT INTO pharmacies
+              (user_id, name, address, zip_code, phone_number, license_number)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+            (user_id, name, address, zip_code, phone_number, license_number)
         )
-        values = (user_id, name, address, zip_code, phone_number, license_number)
-        cursor.execute(insert_pharmacy, values)
+        pharmacy_id = cursor.lastrowid
+
+        # Step 3: Initialize all 5 drug prices to zero
+        cursor.execute(
+            """
+            INSERT INTO pharmacy_drug_prices (pharmacy_id, drug_id, price)
+            SELECT %s, drug_id, 0.00
+              FROM weight_loss_drugs
+            """,
+            (pharmacy_id,)
+        )
 
         connection.commit()
 
