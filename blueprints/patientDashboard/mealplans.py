@@ -2,6 +2,10 @@ from flask import Blueprint, request, jsonify
 import mysql.connector
 import base64
 from config import DB_CONFIG
+import os
+
+# Lets images be rendered to demoData
+UPLOAD_FOLDER = 'static/images'
 
 # Create a blueprint for meal plan endpoints
 mealplans_bp = Blueprint('mealplans', __name__, url_prefix='/api/patient-dashboard/mealplans')
@@ -40,8 +44,12 @@ def create_patient_mealplan():
     image_file = request.files.get('image')
     image_data = None
     if image_file:
-        # Read the binary data for the image
-        image_data = image_file.read()
+        # Save the uploaded file into static/images folder
+        image_path = os.path.join(UPLOAD_FOLDER, image_file.filename)
+        image_file.save(image_path)
+
+        # Save only the relative path to the database
+        image_data = f"images/{image_file.filename}"
 
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
@@ -112,10 +120,6 @@ def get_patient_mealplans():
             WHERE patient_id = %s
         """, (patient_id,))
         mealplans = cursor.fetchall()
-
-        for plan in mealplans:
-            if plan.get("image"):
-                plan["image"] = base64.b64encode(plan["image"]).decode("utf-8")
 
         cursor.close()
         connection.close()
