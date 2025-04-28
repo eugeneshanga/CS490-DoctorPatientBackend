@@ -32,6 +32,7 @@ CREATE TABLE doctors (
     last_name VARCHAR(100) NOT NULL,
     address TEXT,
     phone_number VARCHAR(20),
+    description TEXT,
     ssn VARCHAR(11) UNIQUE NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE

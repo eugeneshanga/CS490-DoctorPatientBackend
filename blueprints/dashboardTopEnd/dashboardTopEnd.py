@@ -32,9 +32,21 @@ def get_dashboard_user_info():
         if user_type == 'patient':
             query = "SELECT patient_id, first_name, last_name, address, phone_number FROM patients WHERE patient_id = %s"
         elif user_type == 'doctor':
-            query = "SELECT doctor_id, first_name, last_name, address, phone_number FROM doctors WHERE user_id = %s"
+            query = """
+                SELECT 
+                    d.doctor_id,
+                    d.first_name,
+                    d.last_name,
+                    d.address,
+                    d.phone_number,
+                    IFNULL(AVG(r.rating), 0) AS average_rating
+                FROM doctors d
+                LEFT JOIN ratings r ON d.doctor_id = r.doctor_id
+                WHERE d.user_id = %s
+                GROUP BY d.doctor_id
+            """
         elif user_type == 'pharmacist':
-            query = "SELECT pharmacist_id, first_name, last_name, address, phone_number FROM pharmacies WHERE user_id = %s"
+            query = "SELECT pharmacy_id, name, address, phone_number FROM pharmacies WHERE user_id = %s"
         else:
             return jsonify({'error': 'Invalid user_type'}), 400
 
@@ -45,6 +57,7 @@ def get_dashboard_user_info():
                 cursor.execute(query, (user_id,))
                 result = cursor.fetchone()
                 if result:
+                    print(f"📦 Backend is sending back this result: {result}")
                     return jsonify(result), 200
                 else:
                     return jsonify({'error': 'User not found'}), 404
