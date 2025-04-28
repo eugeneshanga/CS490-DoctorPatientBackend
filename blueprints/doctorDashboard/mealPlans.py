@@ -2,6 +2,10 @@ from flask import Blueprint, request, jsonify
 import mysql.connector
 import base64
 from config import DB_CONFIG
+import os
+
+# Lets images be rendered to demoData
+UPLOAD_FOLDER = 'static/images'
 
 doctor_mealplans_bp = Blueprint('doctor_mealplans_bp', __name__)
 
@@ -18,7 +22,14 @@ def create_official_meal_plan():
         fat = request.form.get("fat")
         sugar = request.form.get("sugar")
         image_file = request.files.get("image")
-        image_data = image_file.read() if image_file else None
+        
+        if image_file:
+            # Save the uploaded file into static/images
+            image_path = os.path.join(UPLOAD_FOLDER, image_file.filename)
+            image_file.save(image_path)
+            image_data = f"images/{image_file.filename}"
+        else:
+            image_data = None
 
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor()
@@ -91,7 +102,7 @@ def get_official_meal_plans():
                 "calories": row[5],
                 "fat": row[6],
                 "sugar": row[7],
-                "image": base64.b64encode(row[8]).decode('utf-8') if row[8] else None
+                "image": row[8] if row[8] else None
             })
 
         return jsonify({"mealplans": mealplans}), 200
@@ -121,6 +132,118 @@ def delete_official_meal_plan(meal_plan_id):
 
     except Exception as e:
         print("🔥 Error in delete_official_meal_plan:", e)
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        try:
+            cursor.close()
+            connection.close()
+        except:
+            pass
+
+# ASSIGN MEAL PLAN TO PATIENTS
+@doctor_mealplans_bp.route("/doctor-dashboard/assign-mealplan", methods=["POST"])
+def assign_mealplan_to_patient():
+    try:
+        data = request.get_json()
+        user_id = data.get("user_id")
+        patient_id = data.get("patient_id")
+        meal_plan_id = data.get("meal_plan_id")
+
+        if not (user_id and patient_id and meal_plan_id):
+            return jsonify({"error": "Missing fields"}), 400
+
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor()
+
+        # Get the doctor_id from the user_id
+        cursor.execute("SELECT doctor_id FROM doctors WHERE user_id = %s", (user_id,))
+        doctor = cursor.fetchone()
+        doctor_id = doctor[0] if doctor else None
+
+        if not doctor_id:
+            return jsonify({"error": "Doctor not found for this user_id"}), 404
+
+        # Insert assignment into the database
+        cursor.execute("""
+            INSERT INTO doctor_assign_patient_mealplan (doctor_id, patient_id, meal_plan_id)
+            VALUES (%s, %s, %s)
+        """, (doctor_id, patient_id, meal_plan_id))
+        connection.commit()
+
+        return jsonify({"message": "Meal plan assigned successfully"}), 201
+
+    except Exception as e:
+        print("🔥 Error assigning meal plan:", e)
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        try:
+            cursor.close()
+            connection.close()
+        except:
+            pass
+        
+
+@doctor_mealplans_bp.route("/api/patient-dashboard/assigned-mealplans", methods=["GET"])
+def get_assigned_mealplans():
+    try:
+        user_id = request.args.get("user_id")
+        print("📡 Fetching assigned mealplans for user_id:", user_id)
+
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor()
+
+        # Find patient_id
+        cursor.execute("SELECT patient_id FROM patients WHERE user_id = %s", (user_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            return jsonify({"mealplans": []}), 200
+        
+        patient_id = patient[0]
+
+        # NOW join assignment + doctor + mealplan
+        cursor.execute("""
+            SELECT dap.assignment_id,
+                   d.first_name,
+                   d.last_name,
+                   dap.assigned_at,
+                   omp.title,
+                   omp.description,
+                   omp.instructions,
+                   omp.ingredients,
+                   omp.calories,
+                   omp.fat,
+                   omp.sugar,
+                   omp.image
+            FROM doctor_assign_patient_mealplan dap
+            JOIN official_meal_plans omp ON dap.meal_plan_id = omp.meal_plan_id
+            JOIN doctors d ON dap.doctor_id = d.doctor_id
+            WHERE dap.patient_id = %s
+        """, (patient_id,))
+
+        result = cursor.fetchall()
+
+        mealplans = []
+        for row in result:
+            mealplans.append({
+                "assignment_id": row[0],
+                "doctor_name": f"Dr. {row[1]} {row[2]}",
+                "assigned_at": row[3].strftime("%Y-%m-%d %H:%M:%S") if row[3] else None,
+                "title": row[4],
+                "description": row[5],
+                "instructions": row[6],
+                "ingredients": row[7],
+                "calories": row[8],
+                "fat": row[9],
+                "sugar": row[10],
+                "image": row[11] if row[11] else None
+            })
+
+        return jsonify({"mealplans": mealplans}), 200
+
+    except Exception as e:
+        print("🔥 Error fetching assigned mealplans:", e)
         return jsonify({"error": str(e)}), 500
 
     finally:

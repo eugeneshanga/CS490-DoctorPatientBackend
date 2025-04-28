@@ -35,6 +35,42 @@ INSERT INTO pharmacies (user_id, name, address, zip_code, phone_number, license_
 (4, 'CityMeds Pharmacy', '101 Main Street', '10010', '555-2222', 'PHARM10010'),
 (5, 'Neighborhood Pharmacy', '202 Oak Boulevard', '07001', '555-3333', 'PHARM07001');
 
+
+-- Inset Patient Meal Plan
+INSERT INTO patient_meal_plans 
+(patient_id, title, description, image, instructions, calories, fat, sugar, ingredients)
+VALUES
+(1, 'Migas', 'Traditional Mexican scrambled eggs with crispy tortillas.', 'images/migas.jpg', 'Toast the tortillas. Scramble eggs with tortillas until cooked. Serve hot.', 350, 18, 2, 'Eggs, Tortillas, Cheese, Salsa'),
+
+(1, 'Chicken & Halloumi Burgers', 'Quick and easy grilled chicken and halloumi burgers.', 'images/burgers.jpg', 'Grill chicken and halloumi slices. Assemble into burger buns with toppings.', 550, 22, 5, 'Chicken Breast, Halloumi Cheese, Burger Buns, Lettuce, Tomato'),
+
+(1, 'Strawberries Romanoff', 'Classic strawberries in cream dessert.', 'images/Romanoff.jpg', 'Mix strawberries with sugar and orange liqueur. Fold into whipped cream.', 320, 15, 18, 'Strawberries, Whipped Cream, Sugar, Orange Liqueur'),
+
+(1, 'Pilaf', 'Flavored rice cooked with spices and broth.', 'images/pilaf.jpg', 'Saute onions and rice, add broth and spices. Simmer until cooked.', 400, 12, 3, 'Rice, Onion, Garlic, Broth, Spices');
+
+-- Inset Doctor Meal Plan
+INSERT INTO official_meal_plans 
+(doctor_id, title, description, image, instructions, calories, fat, sugar, ingredients)
+VALUES
+
+(1, 'Potato Salad (Olivier Salad)', 'Traditional Russian potato salad with vegetables and mayonnaise.', 'images/potatoSalad.jpg', 'Boil potatoes and eggs. Dice with vegetables and mix with mayonnaise.', 450, 18, 5, 'Potatoes, Carrots, Peas, Pickles, Eggs, Mayonnaise'),
+
+(1, 'Fish Soup (Ukha)', 'Clear Russian fish soup with light vegetables.', 'images/fishSoup.jpg', 'Simmer fish with vegetables like carrots and onions. Season and serve hot.', 280, 8, 2, 'White Fish, Carrots, Onion, Bay Leaves, Dill'),
+
+(1, 'Beetroot Soup (Borscht)', 'Hearty beetroot soup rich in vegetables.', 'images/beetSoup.jpg', 'Cook beets, cabbage, carrots, and potatoes in broth. Add vinegar and season.', 320, 10, 7, 'Beets, Cabbage, Carrots, Potatoes, Broth, Vinegar'),
+
+(2, 'Crock Pot Chicken Baked Tacos', 'Slow-cooked chicken tacos baked with cheese.', 'images/tacos.jpg', 'Cook chicken in crock pot with seasoning. Shred and bake in taco shells.', 500, 20, 4, 'Chicken, Taco Shells, Cheese, Taco Seasoning, Salsa'),
+
+(2, 'Chicken Congee', 'Comforting rice porridge with shredded chicken.', 'images/congee.jpg', 'Simmer rice in broth until soft. Stir in cooked chicken.', 350, 8, 1, 'Rice, Chicken, Ginger, Broth, Green Onion'),
+
+(2, 'Jamaican Beef Patties', 'Spiced beef filled pastries.', 'images/beefPatties.jpg', 'Prepare spiced beef filling. Fill pastry shells and bake until golden.', 420, 22, 2, 'Ground Beef, Curry Powder, Pastry Dough, Onion, Scotch Bonnet Pepper'),
+
+(3, 'Home-made Mandazi', 'East African fried dough treat.', 'images/mandazi.jpg', 'Mix flour, coconut milk, and spices. Fry small dough pieces until golden.', 380, 15, 12, 'Flour, Coconut Milk, Sugar, Baking Powder, Cardamom'),
+
+(3, 'Pilchard Puttanesca', 'Pasta with sardines and a spicy tomato sauce.', 'images/puttanesca.jpg', 'Cook pasta. Prepare sauce with tomatoes, sardines, olives, and capers.', 490, 16, 5, 'Pasta, Sardines, Tomatoes, Capers, Olives'),
+
+(3, 'Blini Pancakes', 'Light Russian-style pancakes.', 'images/pancakes.jpg', 'Prepare a thin pancake batter. Cook on a skillet until golden on both sides.', 300, 10, 4, 'Flour, Milk, Eggs, Yeast, Sugar');
+
 -- Doctor-Patient relationship
 INSERT INTO doctor_patient (doctor_id, patient_id) VALUES (1, 1);
 
