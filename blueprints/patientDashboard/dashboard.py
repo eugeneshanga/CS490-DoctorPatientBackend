@@ -230,6 +230,7 @@ def list_patient_prescriptions():
         cur.close()
         conn.close()
 
+
 @patient_dashboard_bp.route('/prescriptions/filled', methods=['GET'])
 def get_filled_prescriptions():
     """
@@ -277,4 +278,3 @@ def get_filled_prescriptions():
     conn.close()
 
     return jsonify(filled)
-
