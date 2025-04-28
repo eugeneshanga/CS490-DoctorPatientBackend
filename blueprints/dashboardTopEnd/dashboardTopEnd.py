@@ -21,7 +21,7 @@ def get_dashboard_user_info():
         table_map = {
             'patient': 'patients',
             'doctor': 'doctors',
-            'pharmacist': 'pharmacies'
+            'pharmacy': 'pharmacies'
         }
 
         table = table_map.get(user_type)
@@ -30,7 +30,7 @@ def get_dashboard_user_info():
 
         # Build correct query based on user type
         if user_type == 'patient':
-            query = "SELECT patient_id, first_name, last_name, address, phone_number FROM patients WHERE patient_id = %s"
+            query = "SELECT patient_id, first_name, last_name, address, phone_number FROM patients WHERE user_id = %s"
         elif user_type == 'doctor':
             query = """
                 SELECT 
@@ -45,7 +45,7 @@ def get_dashboard_user_info():
                 WHERE d.user_id = %s
                 GROUP BY d.doctor_id
             """
-        elif user_type == 'pharmacist':
+        elif user_type == 'pharmacy':
             query = "SELECT pharmacy_id, name, address, phone_number FROM pharmacies WHERE user_id = %s"
         else:
             return jsonify({'error': 'Invalid user_type'}), 400

@@ -97,9 +97,15 @@ INSERT INTO payments_doctor (doctor_id, patient_id, amount, is_fulfilled) VALUES
 (1, 1, 120.00, FALSE);
 
 -- Insert payments to pharmacy
-INSERT INTO payments_pharmacy (pharmacy_id, patient_id, amount, is_fulfilled) VALUES
-(1, 1, 45.50, TRUE),
-(1, 1, 60.75, FALSE);
+INSERT INTO payments_pharmacy (pharmacy_id, patient_id, amount, is_fulfilled, payment_date) VALUES
+-- matches Orlistat price 50.00
+(1, 1, 50.00, TRUE, NOW() - INTERVAL 4 DAY),
+-- matches Phentermine price 45.00
+(1, 1, 45.00, TRUE, NOW() - INTERVAL 3 DAY),
+-- matches Lorcaserin price 55.00
+(1, 1, 55.00, TRUE, NOW() - INTERVAL 2 DAY),
+-- matches Liraglutide price 150.00
+(1, 1, 150.00, FALSE, NOW());
 
 INSERT INTO patient_preferred_pharmacy (patient_id, pharmacy_id) VALUES
 (1, 1),
@@ -150,11 +156,20 @@ INSERT INTO pharmacy_drug_prices (pharmacy_id, drug_id, price) VALUES
 
 -- Give Patients patientID=2,3,4 a pending prescription at GoodHealth Pharmacy
 INSERT INTO prescriptions
-  (doctor_id, patient_id, pharmacy_id, drug_id, dosage, instructions, status)
+  (doctor_id, patient_id, pharmacy_id, drug_id, dosage, instructions, status, created_at)
 VALUES
   -- Emily Stevens → Orlistat
-  (1, 2,     1, 1, '120mg once daily',   'Demo order', 'pending'),
+  (1, 2,     1, 1, '120mg once daily',   'Demo order', 'pending', NOW() - INTERVAL 36 HOUR),
   -- Michael Brown → Phentermine
-  (1, 3,   1, 2, '37.5mg once daily',  'Demo order', 'pending'),
+  (1, 3,   1, 2, '37.5mg once daily',  'Demo order', 'pending', NOW() - INTERVAL 1 DAY),
   -- Sophia Johnson → Lorcaserin
-  (1, 4,   1, 3, '10mg twice daily',   'Demo order', 'pending');
+  (1, 4,   1, 3, '10mg twice daily',   'Demo order', 'pending', NOW() - INTERVAL 12 HOUR),
+  -- Jane Doe Prescription History
+  -- 4 days ago: Orlistat
+  (1, 1, 1, 1, '120mg once daily', 'Dispensed script 1', 'dispensed', NOW() - INTERVAL 4 DAY),
+  -- 3 days ago: Phentermine
+  (1, 1, 1, 2, '37.5mg once daily', 'Dispensed script 2', 'dispensed', NOW() - INTERVAL 3 DAY),
+  -- 2 days ago: Lorcaserin
+  (1, 1, 1, 3, '10mg twice daily', 'Dispensed script 3', 'dispensed', NOW() - INTERVAL 2 DAY),
+  -- 1 day ago: Liraglutide (still pending)
+  (1, 1, 1, 4, '1.8mg daily',    'Pending script',     'pending',   NOW());
