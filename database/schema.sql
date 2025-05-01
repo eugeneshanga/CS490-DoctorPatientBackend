@@ -245,6 +245,15 @@ CREATE TABLE official_meal_plans (
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
 );
 
+-- Gets meal plan entries for metrics tab
+CREATE TABLE metric_meal_entries (
+    entry_id INT AUTO_INCREMENT PRIMARY KEY,
+    metric_id INT NOT NULL,
+    meal_plan_id INT NOT NULL,
+    FOREIGN KEY (metric_id) REFERENCES medical_metrics(metric_id) ON DELETE CASCADE,
+    FOREIGN KEY (meal_plan_id) REFERENCES patient_meal_plans(meal_plan_id) ON DELETE CASCADE
+);
+
 -- Allows Doctor To Assign Mealplan to Patients
 DROP TABLE IF EXISTS doctor_assign_patient_mealplan;
 
