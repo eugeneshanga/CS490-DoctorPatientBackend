@@ -169,11 +169,11 @@ CREATE TABLE discussion_board (
 CREATE TABLE post_replies (
     reply_id INT AUTO_INCREMENT PRIMARY KEY,
     post_id INT NOT NULL,
-    patient_id INT NOT NULL,
+    user_id INT NOT NULL,
     reply_content TEXT NOT NULL,
     replied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (post_id) REFERENCES discussion_board(post_id) ON DELETE CASCADE,
-    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- Ratings table
@@ -317,11 +317,11 @@ CREATE TABLE patient_preferred_pharmacy (
 CREATE TABLE reply_comments (
     comment_id INT AUTO_INCREMENT PRIMARY KEY,
     reply_id INT NOT NULL,
-    patient_id INT NOT NULL,
+    user_id INT NOT NULL,
     content TEXT NOT NULL,
     commented_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (reply_id) REFERENCES post_replies(reply_id) ON DELETE CASCADE,
-    FOREIGN KEY (patient_id) REFERENCES patients(patient_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
 CREATE TABLE pharmacy_drug_prices (
