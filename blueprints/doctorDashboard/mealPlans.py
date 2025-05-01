@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 import mysql.connector
-import base64
 from config import DB_CONFIG
 import os
 
@@ -10,6 +9,8 @@ UPLOAD_FOLDER = 'static/images'
 doctor_mealplans_bp = Blueprint('doctor_mealplans_bp', __name__)
 
 # CREATE MEAL PLAN
+
+
 @doctor_mealplans_bp.route("/doctor-dashboard/official/create", methods=["POST"])
 def create_official_meal_plan():
     try:
@@ -22,7 +23,7 @@ def create_official_meal_plan():
         fat = request.form.get("fat")
         sugar = request.form.get("sugar")
         image_file = request.files.get("image")
-        
+
         if image_file:
             # Save the uploaded file into static/images
             image_path = os.path.join(UPLOAD_FOLDER, image_file.filename)
@@ -60,10 +61,12 @@ def create_official_meal_plan():
         try:
             cursor.close()
             connection.close()
-        except:
+        except BaseException:
             pass
 
 # GET ALL MEAL PLANS FOR A DOCTOR
+
+
 @doctor_mealplans_bp.route("/doctor-dashboard/official/all", methods=["GET"])
 def get_official_meal_plans():
     try:
@@ -115,10 +118,12 @@ def get_official_meal_plans():
         try:
             cursor.close()
             connection.close()
-        except:
+        except BaseException:
             pass
 
 # DELETE MEAL PLAN
+
+
 @doctor_mealplans_bp.route("/doctor-dashboard/official/delete/<int:meal_plan_id>", methods=["DELETE"])
 def delete_official_meal_plan(meal_plan_id):
     try:
@@ -138,10 +143,12 @@ def delete_official_meal_plan(meal_plan_id):
         try:
             cursor.close()
             connection.close()
-        except:
+        except BaseException:
             pass
 
 # ASSIGN MEAL PLAN TO PATIENTS
+
+
 @doctor_mealplans_bp.route("/doctor-dashboard/assign-mealplan", methods=["POST"])
 def assign_mealplan_to_patient():
     try:
@@ -181,9 +188,9 @@ def assign_mealplan_to_patient():
         try:
             cursor.close()
             connection.close()
-        except:
+        except BaseException:
             pass
-        
+
 
 @doctor_mealplans_bp.route("/api/patient-dashboard/assigned-mealplans", methods=["GET"])
 def get_assigned_mealplans():
@@ -199,7 +206,7 @@ def get_assigned_mealplans():
         patient = cursor.fetchone()
         if not patient:
             return jsonify({"mealplans": []}), 200
-        
+
         patient_id = patient[0]
 
         # NOW join assignment + doctor + mealplan
@@ -250,5 +257,5 @@ def get_assigned_mealplans():
         try:
             cursor.close()
             connection.close()
-        except:
+        except BaseException:
             pass

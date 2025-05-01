@@ -6,6 +6,8 @@ pharmacy_bp = Blueprint('pharmacy', __name__, url_prefix='/api/pharmacies')
 doctor_bp = Blueprint('doctor', __name__, url_prefix='/api/doctors')
 
 # Blueprint for Doctors
+
+
 @doctor_bp.route('/all', methods=['GET'])
 def get_all_doctors():
     try:
@@ -14,7 +16,7 @@ def get_all_doctors():
 
         # ✅ Get doctor info + average rating
         cursor.execute("""
-            SELECT 
+            SELECT
                 d.doctor_id,
                 d.first_name,
                 d.last_name,

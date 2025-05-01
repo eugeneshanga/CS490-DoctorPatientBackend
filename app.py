@@ -24,14 +24,15 @@ from blueprints.postAppointment.ratings import ratings_bp
 from blueprints.doctorReviews.getDoctorReviews import reviews_bp
 
 import os
-from flask import Flask, send_from_directory
 
 app = Flask(__name__)
+
 
 @app.route('/debug-images')
 def debug_images():
     files = os.listdir('static/images')
     return '<br>'.join(files)
+
 
 app = Flask(__name__)
 CORS(app)

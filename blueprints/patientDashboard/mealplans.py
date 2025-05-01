@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 import mysql.connector
-import base64
 from config import DB_CONFIG
 import os
 
