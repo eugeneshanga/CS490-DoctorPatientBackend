@@ -58,10 +58,10 @@ def rate_doctor():
                 if not row:
                     return (
                         jsonify(
-                          error=(
-                            f"Appointment {appointment_id} not found "
-                            f"for patient {patient_id} and doctor {doctor_id}"
-                          )
+                            error=(
+                                f"Appointment {appointment_id} not found "
+                                f"for patient {patient_id} and doctor {doctor_id}"
+                            )
                         ),
                         404
                     )
@@ -69,10 +69,10 @@ def rate_doctor():
                 if status != 'completed':
                     return (
                         jsonify(
-                          error=(
-                            f"Cannot rate appointment {appointment_id} "
-                            f"in status '{row[0]}'; only completed appointments can be rated"
-                          )
+                            error=(
+                                f"Cannot rate appointment {appointment_id} "
+                                f"in status '{row[0]}'; only completed appointments can be rated"
+                            )
                         ),
                         403
                     )
@@ -88,10 +88,10 @@ def rate_doctor():
                 if cur.fetchone():
                     return (
                         jsonify(
-                          error=(
-                            f"Rating already exists for "
-                            f"appointment {appointment_id}"
-                          )
+                            error=(
+                                f"Rating already exists for "
+                                f"appointment {appointment_id}"
+                            )
                         ),
                         409
                     )

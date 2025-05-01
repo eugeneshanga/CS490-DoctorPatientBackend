@@ -1,7 +1,6 @@
 from blueprints.patientDashboard.mealplans import mealplans_bp
 from flask import Flask
 import pytest
-import io
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))

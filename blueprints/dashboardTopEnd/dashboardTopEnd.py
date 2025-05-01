@@ -33,7 +33,7 @@ def get_dashboard_user_info():
             query = "SELECT patient_id, first_name, last_name, address, phone_number FROM patients WHERE user_id = %s"
         elif user_type == 'doctor':
             query = """
-                SELECT 
+                SELECT
                     d.doctor_id,
                     d.first_name,
                     d.last_name,

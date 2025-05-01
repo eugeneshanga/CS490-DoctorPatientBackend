@@ -44,11 +44,11 @@ def top_doctors():
         top_three = []
         for r in rows:
             top_three.append({
-                "doctor_id":            r["doctor_id"],
-                "first_name":           r["first_name"],
-                "last_name":            r["last_name"],
-                "average_rating":       float(r["average_rating"]),
-                "total_ratings":        r["total_ratings"]
+                "doctor_id": r["doctor_id"],
+                "first_name": r["first_name"],
+                "last_name": r["last_name"],
+                "average_rating": float(r["average_rating"]),
+                "total_ratings": r["total_ratings"]
             })
 
         return jsonify(top_three), 200

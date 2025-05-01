@@ -141,6 +141,7 @@ def add_reply_to_reply():
         cursor.close()
         connection.close()
 
+
 @discussion_bp.route('/reply-comments/<int:reply_id>', methods=['GET'])
 def get_reply_comments(reply_id):
     try:
@@ -164,6 +165,7 @@ def get_reply_comments(reply_id):
     finally:
         cursor.close()
         connection.close()
+
 
 @discussion_bp.route('/replies/username/<int:user_id>', methods=['GET'])
 def get_user_name(user_id):
@@ -204,6 +206,7 @@ def get_user_name(user_id):
         cursor.close()
         connection.close()
 
+
 @discussion_bp.route('/posts/author/<int:post_id>', methods=['GET'])
 def get_post_author_name(post_id):
     try:
@@ -216,7 +219,7 @@ def get_post_author_name(post_id):
             JOIN doctors d ON db.doctor_id = d.doctor_id
             WHERE db.post_id = %s
         """, (post_id,))
-        
+
         result = cursor.fetchone()
 
         if result:
@@ -227,4 +230,3 @@ def get_post_author_name(post_id):
     finally:
         cursor.close()
         connection.close()
-
