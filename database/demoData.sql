@@ -173,3 +173,23 @@ VALUES
   (1, 1, 1, 3, '10mg twice daily', 'Dispensed script 3', 'dispensed', NOW() - INTERVAL 2 DAY),
   -- 1 day ago: Liraglutide (still pending)
   (1, 1, 1, 4, '1.8mg daily',    'Pending script',     'pending',   NOW());
+
+INSERT INTO discussion_board (post_id, doctor_id, post_title, post_content, created_at) VALUES
+(1, 3, 'Buckwheat Kasha', 
+ '{"fat": 3, "image": "images/buckwheat.jpg", "sugar": 0, "calories": 150, "description": "Classic Eastern European porridge made from buckwheat.", "ingredients": "Buckwheat, Water, Salt, Butter", "instructions": "Boil buckwheat in salted water until soft. Add butter and serve."}', 
+ '2025-05-01 10:15:43'),
+
+(2, 1, 'Stuffed Peppers', 
+ '{"fat": 12, "image": "images/stuffedPeppers.jpg", "sugar": 6, "calories": 320, "description": "Bell peppers filled with a mix of rice and meat, cooked in tomato sauce.", "ingredients": "Bell Peppers, Ground Beef, Rice, Onion, Tomato Sauce", "instructions": "Mix beef with rice and onion. Stuff into peppers. Simmer in tomato sauce until cooked through."}', 
+ '2025-05-01 10:18:22'),
+
+(3, 1, 'Cabbage Rolls (Golubtsy)', 
+ '{"fat": 10, "image": "images/cabbageRolls.jpg", "sugar": 4, "calories": 350, "description": "Cabbage leaves filled with meat and rice, simmered in tomato sauce.", "ingredients": "Cabbage Leaves, Ground Meat, Rice, Onion, Tomato Sauce", "instructions": "Wrap meat and rice mixture in cabbage leaves. Cook in tomato sauce until tender."}', 
+ '2025-05-01 10:20:55'),
+
+(4, 2, 'Oatmeal with Berries', 
+ '{"fat": 5, "image": "images/oatmealBerries.jpg", "sugar": 10, "calories": 220, "description": "Healthy breakfast oats topped with mixed berries.", "ingredients": "Oats, Milk or Water, Strawberries, Blueberries, Honey", "instructions": "Cook oats with liquid. Top with berries and drizzle honey."}', 
+ '2025-05-01 10:25:10'),
+(5, 4, 'Chicken Kotleti', 
+ '{"fat": 15, "image": "images/chickenKotleti.jpg", "sugar": 1, "calories": 310, "description": "Pan-fried chicken patties with herbs and onion.", "ingredients": "Ground Chicken, Onion, Egg, Bread Crumbs, Spices", "instructions": "Mix all ingredients, form patties, and pan-fry until golden."}', 
+ '2025-05-01 10:28:47');
