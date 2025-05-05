@@ -1,6 +1,0 @@
-{
-  "name": "smart-eatz-backend",
-  "devDependencies": {
-    "semantic-release": "^24.2.3"
-  }
-}
