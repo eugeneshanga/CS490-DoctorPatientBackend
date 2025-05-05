@@ -17,6 +17,9 @@ EXPOSE 5000
 # Set environment variables (optional, e.g., to disable debug in production)
 ENV FLASK_ENV=production
 
+# Bind Flask to 0.0.0.0 so it’s reachable from the pod network
+ENV FLASK_RUN_HOST=0.0.0.0
+
 # Run the Flask application (assuming the entry point is app.py or wsgi.py)
 # If your Flask app is launched via a different command or uses gunicorn, adjust accordingly.
 CMD ["python", "app.py"]

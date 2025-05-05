@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: nstern2002/flask-good-eatz-doctor
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   tag: "latest"
 
 imagePullSecrets: []
