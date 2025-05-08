@@ -5,6 +5,9 @@ image:
   pullPolicy: Always
   tag: "latest"
 
+db:
+  secretName: backend-db-creds
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
