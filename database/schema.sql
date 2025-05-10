@@ -325,11 +325,13 @@ CREATE TABLE patient_preferred_pharmacy (
 
 CREATE TABLE reply_comments (
     comment_id INT AUTO_INCREMENT PRIMARY KEY,
-    reply_id INT NOT NULL,
+    reply_id INT, -- null if comment is on the post itself
+    parent_comment_id INT, -- allows nested comments
     user_id INT NOT NULL,
     content TEXT NOT NULL,
     commented_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (reply_id) REFERENCES post_replies(reply_id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_comment_id) REFERENCES reply_comments(comment_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
@@ -341,3 +343,13 @@ CREATE TABLE pharmacy_drug_prices (
   FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(pharmacy_id) ON DELETE CASCADE,
   FOREIGN KEY (drug_id)     REFERENCES weight_loss_drugs(drug_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE post_upvotes (
+upvote_id INT AUTO_INCREMENT PRIMARY KEY,
+user_id INT NOT NULL,
+post_id INT NOT NULL,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+UNIQUE (user_id, post_id), -- prevents duplicate upvotes
+FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+FOREIGN KEY (post_id) REFERENCES discussion_board(post_id) ON DELETE CASCADE
+);
