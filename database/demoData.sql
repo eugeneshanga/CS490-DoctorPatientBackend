@@ -193,3 +193,21 @@ INSERT INTO discussion_board (post_id, doctor_id, post_title, post_content, crea
 (5, 4, 'Chicken Kotleti', 
  '{"fat": 15, "image": "images/chickenKotleti.jpg", "sugar": 1, "calories": 310, "description": "Pan-fried chicken patties with herbs and onion.", "ingredients": "Ground Chicken, Onion, Egg, Bread Crumbs, Spices", "instructions": "Mix all ingredients, form patties, and pan-fry until golden."}', 
  '2025-05-01 10:28:47');
+
+ INSERT INTO post_upvotes (user_id, post_id, created_at) VALUES
+    -- Jane Doe (1) upvotes posts 1 and 2
+    (1, 1, '2025-05-02 08:30:00'),
+    (1, 2, '2025-05-02 09:00:00'),
+
+    -- Emily Stevens (9) upvotes posts 1, 2, and 3
+    (9, 1, '2025-05-02 08:45:00'),
+    (9, 2, '2025-05-02 09:05:00'),
+    (9, 3, '2025-05-02 09:15:00'),
+
+    -- Michael Brown (10) upvotes posts 2 and 4
+    (10, 2, '2025-05-02 10:10:00'),
+    (10, 4, '2025-05-02 10:12:00'),
+
+    -- Sophia Johnson (11) upvotes posts 4 and 5
+    (11, 4, '2025-05-02 10:20:00'),
+    (11, 5, '2025-05-02 10:30:00');
