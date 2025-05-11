@@ -45,6 +45,26 @@ def get_all_posts():
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor(dictionary=True)
 
+        # Sorting posts by most recent (descending order based on created_at)
+        cursor.execute("SELECT * FROM discussion_board ORDER BY created_at DESC")
+        posts = cursor.fetchall()
+
+        return jsonify(posts), 200
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
+# Sorted by upvotes
+@discussion_bp.route('/posts/Up', methods=['GET'])
+def get_all_posts_up():
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        cursor = connection.cursor(dictionary=True)
+
         cursor.execute("""
         SELECT 
             d.*, 
