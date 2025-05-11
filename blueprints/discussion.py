@@ -45,7 +45,19 @@ def get_all_posts():
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor(dictionary=True)
 
-        cursor.execute("SELECT * FROM discussion_board ORDER BY created_at DESC")
+        cursor.execute("""
+        SELECT 
+            d.*, 
+            COUNT(pu.user_id) AS upvote_count
+        FROM 
+            discussion_board d
+        LEFT JOIN 
+            post_upvotes pu ON d.post_id = pu.post_id
+        GROUP BY 
+            d.post_id
+        ORDER BY 
+            upvote_count DESC, created_at DESC
+        """)
         posts = cursor.fetchall()
 
         return jsonify(posts), 200
@@ -58,7 +70,7 @@ def get_all_posts():
         connection.close()
 
 
-# patient reply
+# reply
 @discussion_bp.route('/reply', methods=['POST'])
 def reply_to_post():
     data = request.get_json()
@@ -118,6 +130,7 @@ def add_reply_to_reply():
     reply_id = data.get('reply_id')
     user_id = data.get('user_id')
     content = data.get('content')
+    parent_comment_id = data.get('parent_comment_id')  # Optional for nested replies
 
     if not reply_id or not user_id or not content:
         return jsonify({"error": "Missing required fields"}), 400
@@ -127,11 +140,11 @@ def add_reply_to_reply():
         cursor = connection.cursor()
 
         cursor.execute("""
-            INSERT INTO reply_comments (reply_id, user_id, content)
-            VALUES (%s, %s, %s)
-        """, (reply_id, user_id, content))
-        connection.commit()
+            INSERT INTO reply_comments (reply_id, parent_comment_id, user_id, content)
+            VALUES (%s, %s, %s, %s)
+        """, (reply_id, parent_comment_id, user_id, content))
 
+        connection.commit()
         return jsonify({"message": "Reply comment submitted successfully"}), 201
 
     except mysql.connector.Error as err:
@@ -227,6 +240,86 @@ def get_post_author_name(post_id):
         else:
             return jsonify({"name": "Unknown"})
 
+    finally:
+        cursor.close()
+        connection.close()
+
+
+@discussion_bp.route('/api/posts/upvote', methods=['POST'])
+def toggle_post_upvote():
+    data = request.json
+    post_id = data.get('post_id')
+    user_id = data.get('user_id')
+
+    if not post_id or not user_id:
+        return jsonify({"error": "Missing post_id or user_id"}), 400
+
+    connection = mysql.connector.connect(**DB_CONFIG)
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        # Check if the user has already upvoted the post
+        cursor.execute(
+            "SELECT * FROM post_upvotes WHERE user_id = %s AND post_id = %s",
+            (user_id, post_id)
+        )
+        existing_upvote = cursor.fetchone()
+
+        if existing_upvote:
+            # Remove the upvote
+            cursor.execute(
+                "DELETE FROM post_upvotes WHERE user_id = %s AND post_id = %s",
+                (user_id, post_id)
+            )
+            connection.commit()
+            return jsonify({"status": "removed"})
+        else:
+            # Add the upvote
+            cursor.execute(
+                "INSERT INTO post_upvotes (user_id, post_id) VALUES (%s, %s)",
+                (user_id, post_id)
+            )
+            connection.commit()
+            return jsonify({"status": "added"})
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": "Internal server error"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+@discussion_bp.route('/api/posts/upvotes/<int:post_id>', methods=['GET'])
+def get_upvote_status(post_id):
+    user_id = request.args.get('user_id')
+
+    if not user_id:
+        return jsonify({"error": "Missing user_id in query params"}), 400
+
+    connection = mysql.connector.connect(**DB_CONFIG)
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        # Count total upvotes for the post
+        cursor.execute(
+            "SELECT COUNT(*) AS count FROM post_upvotes WHERE post_id = %s",
+            (post_id,)
+        )
+        upvote_count = cursor.fetchone()['count']
+
+        # Check if the user has already upvoted
+        cursor.execute(
+            "SELECT 1 FROM post_upvotes WHERE user_id = %s AND post_id = %s",
+            (user_id, post_id)
+        )
+        user_upvoted = cursor.fetchone() is not None
+
+        return jsonify({
+            "count": upvote_count,
+            "upvoted": user_upvoted
+        })
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": "Internal server error"}), 500
     finally:
         cursor.close()
         connection.close()
