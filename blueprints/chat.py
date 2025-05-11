@@ -119,7 +119,6 @@ def list_appointments():
         cursor.close()
         conn.close()
 
-# in your chat_bp blueprint module
 
 @chat_bp.route('/contacts', methods=['GET'])
 def list_contacts():
@@ -127,7 +126,7 @@ def list_contacts():
     If is_doctor, pass doctor_id → returns patients they’ve chatted with.
     If is_patient, pass patient_id  → returns doctors they’ve chatted with.
     """
-    doctor_id  = request.args.get('doctor_id')
+    doctor_id = request.args.get('doctor_id')
     patient_id = request.args.get('patient_id')
     if bool(doctor_id) == bool(patient_id):
         return jsonify(error="Provide exactly one of doctor_id or patient_id"), 400
