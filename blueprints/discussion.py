@@ -130,6 +130,7 @@ def add_reply_to_reply():
     reply_id = data.get('reply_id')
     user_id = data.get('user_id')
     content = data.get('content')
+    parent_comment_id = data.get('parent_comment_id')  # Optional for nested replies
 
     if not reply_id or not user_id or not content:
         return jsonify({"error": "Missing required fields"}), 400
@@ -139,11 +140,11 @@ def add_reply_to_reply():
         cursor = connection.cursor()
 
         cursor.execute("""
-            INSERT INTO reply_comments (reply_id, user_id, content)
-            VALUES (%s, %s, %s)
-        """, (reply_id, user_id, content))
-        connection.commit()
+            INSERT INTO reply_comments (reply_id, parent_comment_id, user_id, content)
+            VALUES (%s, %s, %s, %s)
+        """, (reply_id, parent_comment_id, user_id, content))
 
+        connection.commit()
         return jsonify({"message": "Reply comment submitted successfully"}), 201
 
     except mysql.connector.Error as err:
