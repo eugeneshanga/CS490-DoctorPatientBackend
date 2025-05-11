@@ -118,3 +118,56 @@ def list_appointments():
     finally:
         cursor.close()
         conn.close()
+
+# in your chat_bp blueprint module
+
+@chat_bp.route('/contacts', methods=['GET'])
+def list_contacts():
+    """
+    If is_doctor, pass doctor_id → returns patients they’ve chatted with.
+    If is_patient, pass patient_id  → returns doctors they’ve chatted with.
+    """
+    doctor_id  = request.args.get('doctor_id')
+    patient_id = request.args.get('patient_id')
+    if bool(doctor_id) == bool(patient_id):
+        return jsonify(error="Provide exactly one of doctor_id or patient_id"), 400
+
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor(dictionary=True)
+
+        if doctor_id:
+            # fetch distinct patient IDs + names for this doctor
+            cursor.execute("""
+                SELECT DISTINCT p.patient_id, p.first_name, p.last_name
+                  FROM chat_history c
+                  JOIN patients p ON c.patient_id = p.patient_id
+                 WHERE c.doctor_id = %s
+            """, (doctor_id,))
+        else:
+            # fetch distinct doctor IDs + names for this patient
+            cursor.execute("""
+                SELECT DISTINCT d.doctor_id, d.first_name, d.last_name
+                  FROM chat_history c
+                  JOIN doctors d ON c.doctor_id = d.doctor_id
+                 WHERE c.patient_id = %s
+            """, (patient_id,))
+
+        rows = cursor.fetchall()
+        # normalize into { id, name }
+        contacts = [
+            {
+                "id":    row.get('patient_id') or row.get('doctor_id'),
+                "name": f"{row['first_name']} {row['last_name']}"
+            }
+            for row in rows
+        ]
+        return jsonify(contacts), 200
+
+    except mysql.connector.Error as e:
+        print("❌ Error listing contacts:", e)
+        return jsonify(error="Internal server error"), 500
+
+    finally:
+        cursor.close()
+        conn.close()
