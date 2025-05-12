@@ -1,6 +1,7 @@
 import pytest
 import mysql.connector
 
+
 # A fake cursor returning preconfigured rows and supporting insert/update metadata
 class FakeCursor:
     def __init__(self, rows=None, dictionary=False):
@@ -44,6 +45,7 @@ class FakeCursor:
     def __exit__(self, exc_type, exc, tb):
         pass
 
+
 # A fake connection handing out the fake cursor and supporting context manager
 class FakeConn:
     def __init__(self):
@@ -67,6 +69,7 @@ class FakeConn:
 
     def __exit__(self, exc_type, exc, tb):
         pass
+
 
 @pytest.fixture(autouse=True)
 def patch_mysql_connect(monkeypatch):

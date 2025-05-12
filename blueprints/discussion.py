@@ -58,6 +58,7 @@ def get_all_posts():
         cursor.close()
         connection.close()
 
+
 # Sorted by upvotes
 @discussion_bp.route('/posts/Up', methods=['GET'])
 def get_all_posts_up():
@@ -66,16 +67,16 @@ def get_all_posts_up():
         cursor = connection.cursor(dictionary=True)
 
         cursor.execute("""
-        SELECT 
-            d.*, 
+        SELECT
+            d.*,
             COUNT(pu.user_id) AS upvote_count
-        FROM 
+        FROM
             discussion_board d
-        LEFT JOIN 
+        LEFT JOIN
             post_upvotes pu ON d.post_id = pu.post_id
-        GROUP BY 
+        GROUP BY
             d.post_id
-        ORDER BY 
+        ORDER BY
             upvote_count DESC, created_at DESC
         """)
         posts = cursor.fetchall()
@@ -307,6 +308,7 @@ def toggle_post_upvote():
     finally:
         cursor.close()
         connection.close()
+
 
 @discussion_bp.route('/api/posts/upvotes/<int:post_id>', methods=['GET'])
 def get_upvote_status(post_id):
