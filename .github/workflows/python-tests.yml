@@ -31,6 +31,6 @@ jobs:
           pip install Flask mysql-connector-python flask-cors
           pip install pytest pytest-cov
 
-      - name: Run tests & enforce 60% coverage
+      - name: Run tests & enforce 50% coverage
         run: |
           pytest --cov=./ --cov-report=term-missing --cov-fail-under=50

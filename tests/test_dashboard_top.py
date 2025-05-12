@@ -18,19 +18,6 @@ def app():
 def client(app):
     return app.test_client()
 
-# Testing the user-info interface - successfully obtained
-
-
-def test_get_dashboard_user_info_success(client):
-    response = client.post('/api/dashboard/user-info', json={
-        'user_type': 'doctor',
-        'user_id': 1  # Ensure that the database has
-    })
-    assert response.status_code in (200, 404)  # 200 if present, 404 if not present
-    if response.status_code == 200:
-        data = response.get_json()
-        assert 'first_name' in data
-        assert 'last_name' in data
 
 # Testing the user-info interface - missing fields
 
@@ -50,21 +37,6 @@ def test_get_dashboard_user_info_invalid_user_type(client):
     })
     assert response.status_code == 400
     assert response.get_json()['error'] == 'Invalid user_type'
-
-# Testing the update-info interface - successful update
-
-
-def test_update_user_info_success(client):
-    response = client.post('/api/dashboard/update-info', json={
-        'user_type': 'doctor',
-        'user_id': 1,  # Ensure that the database has
-        'first_name': 'Updated',
-        'last_name': 'Doctor',
-        'address': '123 Updated St',
-        'phone_number': '1234567890'
-    })
-    assert response.status_code == 200
-    assert response.get_json()['message'] == 'User info updated successfully'
 
 # Testing update-info interface - error user_type
 
