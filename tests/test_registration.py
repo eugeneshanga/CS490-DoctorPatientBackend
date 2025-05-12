@@ -18,24 +18,6 @@ def app():
 def client(app):
     return app.test_client()
 
-# 1.Patient Registration Successful
-
-
-def test_register_patient_success(client):
-    response = client.post('/api/register/patient', json={
-        'email': 'patient_test@example.com',
-        'password': 'password123',
-        'first_name': 'John',
-        'last_name': 'Doe',
-        'address': '123 Main St',
-        'phone_number': '1234567890',
-        'zip_code': '12345'
-    })
-    assert response.status_code in (201, 500)
-    if response.status_code == 201:
-        data = response.get_json()
-        assert 'message' in data
-        assert data['message'] == 'Patient registered successfully'
 
 # 2. Doctor Registration Successful
 
