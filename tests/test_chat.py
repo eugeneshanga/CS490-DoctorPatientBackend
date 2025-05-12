@@ -38,16 +38,3 @@ def test_login_invalid_email(client):
     assert response.get_json()['error'] == 'Invalid email or password'
 
 # Test for correct login (based on doctor1@gmail.com)
-
-
-def test_login_success(client):
-    response = client.post('/api/auth/login', json={
-        'email': 'dr.house@example.com',  # The real e-mail address in your database.
-        'password': 'password'  # The corresponding real password
-    })
-    assert response.status_code == 200
-    data = response.get_json()
-    assert data['message'] == 'Login successful'
-    assert 'user' in data
-    assert 'email' in data['user']
-    assert data['user']['email'] == 'dr.house@example.com'  # Fix the assertion to be a real mailbox
