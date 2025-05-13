@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_cors import CORS  # CORS for handling cross-origin requests
 import mysql.connector
+from flasgger import Swagger
 from config import DB_CONFIG
 from blueprints.landingPage.landingPage import pharmacy_bp
 from blueprints.landingPage.landingPage import doctor_bp
@@ -26,6 +27,10 @@ from blueprints.doctorReviews.getDoctorReviews import reviews_bp
 import os
 
 app = Flask(__name__)
+swagger = Swagger(app, template_file='swagger.yaml')
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+yaml_path = os.path.join(base_dir, 'swagger.yaml')
 
 
 @app.route('/debug-images')
@@ -34,7 +39,6 @@ def debug_images():
     return '<br>'.join(files)
 
 
-app = Flask(__name__)
 CORS(app)
 
 app.register_blueprint(pharmacy_bp)

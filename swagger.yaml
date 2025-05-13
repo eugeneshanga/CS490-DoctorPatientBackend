@@ -1,0 +1,1618 @@
+
+swagger: "2.0"
+info:
+  title: Doctor Patient Management API
+  version: "1.0.0"
+  description: API documentation for User Registration and Discussion Board.
+host: localhost:5000
+basePath: "/"
+schemes:
+  - http
+
+paths:
+  /api/dashboard/user-info:
+    post:
+      summary: "Get dashboard user info based on user_type and user_id"
+      description: "Retrieve basic profile information for patients, doctors (including average rating), or pharmacies."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_type:
+                  type: string
+                  enum: [patient, doctor, pharmacy]
+                  example: "patient"
+                user_id:
+                  type: integer
+                  example: 5
+      responses:
+        '200':
+          description: "Successfully retrieved user information"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: "Missing or invalid user_type or user_id"
+        '404':
+          description: "User not found"
+        '500':
+          description: "Database or internal server error"
+
+  /api/dashboard/update-info:
+    post:
+      summary: "Update dashboard user info"
+      description: "Update first_name, last_name, address, and phone_number for a patient, doctor, or pharmacist."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_type:
+                  type: string
+                  enum: [patient, doctor, pharmacist]
+                  example: "patient"
+                user_id:
+                  type: integer
+                  example: 5
+                first_name:
+                  type: string
+                  example: "John"
+                last_name:
+                  type: string
+                  example: "Doe"
+                address:
+                  type: string
+                  example: "123 Main St"
+                phone_number:
+                  type: string
+                  example: "123-456-7890"
+      responses:
+        '200':
+          description: "User info updated successfully"
+        '400':
+          description: "Invalid user type"
+        '500':
+          description: "Update failed"
+  /api/doctor-dashboard/appointments/:
+    get:
+      summary: "Get scheduled appointments for a doctor"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '200':
+          description: "List of scheduled appointments"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Doctor not found"
+        '500':
+          description: "Database error"
+
+  /api/doctor-dashboard/appointments/respond:
+    post:
+      summary: "Respond to an appointment request"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  example: 3
+                appointment_id:
+                  type: integer
+                  example: 12
+                accepted:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: "Appointment status updated"
+        '400':
+          description: "Missing required fields"
+        '404':
+          description: "Doctor or appointment not found"
+        '500':
+          description: "Database error"
+
+  /api/doctor-dashboard/appointments/accepted:
+    get:
+      summary: "Get accepted appointments for a doctor"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '200':
+          description: "List of accepted appointments"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Doctor not found"
+        '500':
+          description: "Database error"
+
+  /api/doctor-dashboard/appointments/canceled:
+    get:
+      summary: "Get canceled appointments for a doctor"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '200':
+          description: "List of canceled appointments"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Doctor not found"
+        '500':
+          description: "Database error"
+
+  /api/doctor-dashboard/appointments/completed:
+    get:
+      summary: "Get completed appointments for a doctor"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '200':
+          description: "List of completed appointments"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Doctor not found"
+        '500':
+          description: "Database error"
+
+  /api/doctor-dashboard/appointments/complete:
+    patch:
+      summary: "Mark an appointment as completed"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                appointment_id:
+                  type: integer
+                  example: 12
+      responses:
+        '200':
+          description: "Appointment marked as completed"
+        '400':
+          description: "Missing appointment_id"
+        '500':
+          description: "Database error"
+          
+  /api/patient-dashboard/mealplans/patient/create:
+    post:
+      summary: "Create a patient meal plan"
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: user_id
+          required: true
+          type: integer
+        - in: formData
+          name: title
+          required: true
+          type: string
+        - in: formData
+          name: description
+          required: false
+          type: string
+        - in: formData
+          name: instructions
+          required: false
+          type: string
+        - in: formData
+          name: calories
+          required: false
+          type: integer
+        - in: formData
+          name: fat
+          required: false
+          type: integer
+        - in: formData
+          name: sugar
+          required: false
+          type: integer
+        - in: formData
+          name: ingredients
+          required: false
+          type: string
+        - in: formData
+          name: image
+          required: false
+          type: file
+      responses:
+        '201':
+          description: "Patient meal plan created successfully"
+        '400':
+          description: "Missing required fields"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/mealplans/patient/all:
+    get:
+      summary: "Get all meal plans for a patient"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of patient meal plans returned"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/mealplans/delete/{meal_plan_id}:
+    delete:
+      summary: "Delete a patient meal plan by meal_plan_id"
+      parameters:
+        - in: path
+          name: meal_plan_id
+          required: true
+          schema:
+            type: integer
+            example: 7
+      responses:
+        '200':
+          description: "Meal plan deleted successfully"
+        '500':
+          description: "Database error"
+
+  /api/doctor-dashboard/payments:
+    get:
+      summary: "Get all payments received by a doctor"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '200':
+          description: "List of doctor payments returned"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Doctor not found"
+        '500':
+          description: "Database error"
+
+  /api/reviews/top-doctors:
+    get:
+      summary: "Get the top 3 doctors by average rating"
+      responses:
+        '200':
+          description: "List of top 3 doctors returned"
+        '500':
+          description: "Database error"
+
+  /api/doctors/all:
+    get:
+      summary: "Get all doctors with their average ratings"
+      responses:
+        '200':
+          description: "List of all doctors returned"
+        '500':
+          description: "Database error"
+
+  /api/pharmacies/all:
+    get:
+      summary: "Get all pharmacies"
+      responses:
+        '200':
+          description: "List of all pharmacies returned"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/appointments/accepted:
+    get:
+      summary: "Get upcoming accepted appointments for a patient"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of upcoming accepted appointments"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/appointments/scheduled:
+    get:
+      summary: "Get scheduled appointments for a patient"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of scheduled appointments"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/appointments/canceled:
+    get:
+      summary: "Get canceled appointments for a patient"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of canceled appointments"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/appointments/rejected:
+    get:
+      summary: "Get rejected appointments for a patient"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of rejected appointments"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/appointments/completed:
+    get:
+      summary: "Get completed appointments for a patient"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of completed appointments"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/appointments/patient_appointment:
+    post:
+      summary: "Patient requests an appointment with a doctor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  example: 5
+                doctor_id:
+                  type: integer
+                  example: 3
+                appointment_time:
+                  type: string
+                  example: "2025-04-15 14:30:00"
+      responses:
+        '201':
+          description: "Appointment request submitted"
+        '400':
+          description: "Missing required fields"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/appointments/cancel_appointment:
+    patch:
+      summary: "Cancel an appointment by patient"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  example: 5
+                appointment_id:
+                  type: integer
+                  example: 12
+      responses:
+        '200':
+          description: "Appointment canceled successfully"
+        '400':
+          description: "Missing required fields"
+        '404':
+          description: "Appointment not found for given patient"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/details:
+    get:
+      summary: "Get patient details by user_id"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "Patient details returned"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/search-doctors:
+    get:
+      summary: "Search doctors by name"
+      parameters:
+        - in: query
+          name: query
+          required: false
+          schema:
+            type: string
+            example: "Smith"
+      responses:
+        '200':
+          description: "List of doctors returned"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/preferred_pharmacy:
+    get:
+      summary: "Get preferred pharmacy by user_id"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "Preferred pharmacy details returned"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "No preferred pharmacy found"
+        '500':
+          description: "Internal server error"
+
+  /api/patient-dashboard/meal-plans:
+    get:
+      summary: "Get all meal plans for a patient by user_id"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of meal plans returned"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/pending-prescriptions:
+    get:
+      summary: "List pending prescriptions for a patient"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of pending prescriptions returned"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Internal server error"
+
+  /api/patient-dashboard/prescriptions/filled:
+    get:
+      summary: "Get filled prescriptions for a patient"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of filled prescriptions returned"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Internal server error"
+
+  /api/patient-dashboard/mealplans/patient/create:
+    post:
+      summary: "Create a new patient meal plan"
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: user_id
+          required: true
+          type: integer
+        - in: formData
+          name: title
+          required: true
+          type: string
+        - in: formData
+          name: description
+          required: false
+          type: string
+        - in: formData
+          name: instructions
+          required: false
+          type: string
+        - in: formData
+          name: calories
+          required: false
+          type: integer
+        - in: formData
+          name: fat
+          required: false
+          type: integer
+        - in: formData
+          name: sugar
+          required: false
+          type: integer
+        - in: formData
+          name: ingredients
+          required: false
+          type: string
+        - in: formData
+          name: image
+          required: false
+          type: file
+      responses:
+        '201':
+          description: "Patient meal plan created successfully"
+        '400':
+          description: "Missing required fields: user_id and title"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/mealplans/patient/all:
+    get:
+      summary: "Get all patient meal plans by user_id"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of patient meal plans returned"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/mealplans/delete/{meal_plan_id}:
+    delete:
+      summary: "Delete a patient meal plan by meal_plan_id"
+      parameters:
+        - in: path
+          name: meal_plan_id
+          required: true
+          schema:
+            type: integer
+            example: 7
+      responses:
+        '200':
+          description: "Meal plan deleted"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/metrics/submit:
+    post:
+      summary: "Submit medical metrics for a patient"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  example: 5
+                weight:
+                  type: number
+                  example: 70.5
+                height:
+                  type: number
+                  example: 1.75
+                caloric_intake:
+                  type: integer
+                  example: 2200
+                meal_plan_ids:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2]
+                extra_calories:
+                  type: integer
+                  example: 100
+      responses:
+        '201':
+          description: "Medical metrics submitted successfully"
+        '400':
+          description: "Missing required fields"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/metrics/graph-data:
+    get:
+      summary: "Get graph data for weight and caloric intake over time"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "Graph data returned"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/metrics/latest-height:
+    get:
+      summary: "Get the latest recorded height for a patient"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "Latest height returned"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient or metrics not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/payments/doctor:
+    get:
+      summary: "Get all payments made by a patient to doctors"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of doctor payments made by patient"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/patient-dashboard/payments/pharmacy:
+    get:
+      summary: "Get all payments made by a patient to pharmacies"
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of pharmacy payments made by patient"
+        '400':
+          description: "Missing user_id"
+        '404':
+          description: "Patient not found"
+        '500':
+          description: "Database error"
+
+  /api/payment/transaction/payments/doctor/{payment_id}:
+    get:
+      summary: "Get details of a doctor payment by payment_id"
+      parameters:
+        - in: path
+          name: payment_id
+          required: true
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: "Doctor payment details returned"
+        '404':
+          description: "Payment not found"
+        '500':
+          description: "Database error"
+
+  /api/payment/transaction/payments/doctor/{payment_id}/fulfill:
+    patch:
+      summary: "Fulfill a doctor payment with card details"
+      parameters:
+        - in: path
+          name: payment_id
+          required: true
+          schema:
+            type: integer
+            example: 10
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cardholder_name:
+                  type: string
+                  example: "John Doe"
+                card_number:
+                  type: string
+                  example: "4111111111111111"
+                exp_month:
+                  type: integer
+                  example: 12
+                exp_year:
+                  type: integer
+                  example: 2025
+                cvv:
+                  type: string
+                  example: "123"
+      responses:
+        '200':
+          description: "Doctor payment fulfilled and details recorded"
+        '400':
+          description: "Missing payment detail fields"
+        '404':
+          description: "No unfulfilled payment found"
+        '500':
+          description: "Database error"
+
+  /api/payment/transaction/payments/pharmacy/{payment_id}:
+    get:
+      summary: "Get details of a pharmacy payment by payment_id"
+      parameters:
+        - in: path
+          name: payment_id
+          required: true
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: "Pharmacy payment details returned"
+        '404':
+          description: "Payment not found"
+        '500':
+          description: "Database error"
+
+  /api/payment/transaction/payments/pharmacy/{payment_id}/fulfill:
+    patch:
+      summary: "Fulfill a pharmacy payment with card details"
+      parameters:
+        - in: path
+          name: payment_id
+          required: true
+          schema:
+            type: integer
+            example: 15
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cardholder_name:
+                  type: string
+                  example: "John Doe"
+                card_number:
+                  type: string
+                  example: "4111111111111111"
+                exp_month:
+                  type: integer
+                  example: 12
+                exp_year:
+                  type: integer
+                  example: 2025
+                cvv:
+                  type: string
+                  example: "123"
+      responses:
+        '200':
+          description: "Pharmacy payment fulfilled and details recorded"
+        '400':
+          description: "Missing payment detail fields"
+        '404':
+          description: "No unfulfilled payment found"
+        '500':
+          description: "Database error"
+
+  /api/post-appointment/ratings/rate_doctor:
+    post:
+      summary: "Submit a rating and optional review for a doctor after appointment"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                patient_id:
+                  type: integer
+                  example: 5
+                doctor_id:
+                  type: integer
+                  example: 3
+                appointment_id:
+                  type: integer
+                  example: 10
+                rating:
+                  type: number
+                  format: float
+                  example: 4.5
+                review:
+                  type: string
+                  example: "Great consultation. Very helpful."
+      responses:
+        '201':
+          description: "Rating submitted successfully"
+        '400':
+          description: "Validation failed"
+        '403':
+          description: "Appointment not completed"
+        '404':
+          description: "Appointment not found"
+        '409':
+          description: "Rating already exists"
+        '500':
+          description: "Database error"
+
+  /api/doctor-dashboard/payments/create:
+    post:
+      summary: "Create a payment record for a completed appointment"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                doctor_id:
+                  type: integer
+                  example: 3
+                patient_id:
+                  type: integer
+                  example: 5
+                appointment_id:
+                  type: integer
+                  example: 12
+                amount:
+                  type: number
+                  format: float
+                  example: 150.00
+      responses:
+        '201':
+          description: "Payment created successfully"
+        '400':
+          description: "Missing required fields"
+        '500':
+          description: "Database error"
+
+  /api/appointments/create:
+    post:
+      summary: "Create a new appointment"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                patient_id:
+                  type: integer
+                  example: 5
+                doctor_id:
+                  type: integer
+                  example: 3
+                appointment_time:
+                  type: string
+                  example: "2025-05-20 14:30:00"
+      responses:
+        '201':
+          description: "Appointment created successfully"
+        '400':
+          description: "Missing required fields"
+        '500':
+          description: "Database error"
+
+  /api/appointments/confirm/{appointment_id}:
+    post:
+      summary: "Mark an appointment as completed by appointment_id"
+      parameters:
+        - in: path
+          name: appointment_id
+          required: true
+          schema:
+            type: integer
+            example: 12
+      responses:
+        '200':
+          description: "Appointment marked as completed"
+        '404':
+          description: "Appointment not found"
+        '500':
+          description: "Database error"
+
+  /api/appointments/all:
+    get:
+      summary: "Get all appointments with doctor emails"
+      responses:
+        '200':
+          description: "List of all appointments returned"
+        '500':
+          description: "Database error"
+
+  /api/appointments/decision/{appointment_id}:
+    post:
+      summary: "Doctor accepts or rejects an appointment by appointment_id"
+      parameters:
+        - in: path
+          name: appointment_id
+          required: true
+          schema:
+            type: integer
+            example: 12
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                decision:
+                  type: string
+                  enum: [accepted, rejected]
+                  example: accepted
+      responses:
+        '200':
+          description: "Appointment decision processed"
+        '400':
+          description: "Invalid decision value"
+        '403':
+          description: "Status change not allowed"
+        '404':
+          description: "Appointment not found"
+        '500':
+          description: "Database error"
+
+  /api/appointments/cancel/{appointment_id}:
+    post:
+      summary: "Cancel an appointment by appointment_id"
+      parameters:
+        - in: path
+          name: appointment_id
+          required: true
+          schema:
+            type: integer
+            example: 12
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [patient, doctor]
+                  example: patient
+      responses:
+        '200':
+          description: "Appointment canceled successfully"
+        '400':
+          description: "Invalid role"
+        '403':
+          description: "Appointment cannot be canceled"
+        '404':
+          description: "Appointment not found"
+        '500':
+          description: "Database error"
+
+  /api/auth/login:
+    post:
+      summary: "Login a user"
+      description: "Validate email and password, and return user info on success."
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: login
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                example: "example@example.com"
+              password:
+                type: string
+                example: "yourpassword"
+      responses:
+        '200':
+          description: "Login successful, returns user info"
+        '400':
+          description: "Missing required fields"
+        '401':
+          description: "Invalid email or password"
+        '500':
+          description: "Database error"
+
+
+  /api/chat/send:
+    post:
+      summary: "Send a chat message"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                patient_id:
+                  type: integer
+                  example: 5
+                doctor_id:
+                  type: integer
+                  example: 3
+                appointment_id:
+                  type: integer
+                  example: 12
+                sender_type:
+                  type: string
+                  example: "patient"
+                message:
+                  type: string
+                  example: "Hello doctor, I have a question about my prescription."
+      responses:
+        '201':
+          description: "Message sent successfully"
+        '400':
+          description: "Missing required fields"
+        '500':
+          description: "Database error"
+
+  /api/chat/history:
+    get:
+      summary: "Get chat history for a specific patient-doctor-appointment combination"
+      parameters:
+        - in: query
+          name: patient_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+        - in: query
+          name: doctor_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+        - in: query
+          name: appointment_id
+          required: true
+          schema:
+            type: integer
+            example: 12
+      responses:
+        '200':
+          description: "Chat history returned"
+        '400':
+          description: "Missing required query parameters"
+        '500':
+          description: "Database error"
+
+  /api/chat/appointments:
+    get:
+      summary: "List completed appointments between a patient and doctor"
+      parameters:
+        - in: query
+          name: doctor_id
+          required: true
+          schema:
+            type: integer
+            example: 3
+        - in: query
+          name: patient_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of completed appointments returned"
+        '400':
+          description: "Missing required query parameters"
+        '500':
+          description: "Database error"
+
+  /api/chat/contacts:
+    get:
+      summary: "List chat contacts for a doctor or patient"
+      parameters:
+        - in: query
+          name: doctor_id
+          required: false
+          schema:
+            type: integer
+            example: 3
+        - in: query
+          name: patient_id
+          required: false
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of chat contacts returned"
+        '400':
+          description: "Must provide exactly one of doctor_id or patient_id"
+        '500':
+          description: "Database error"
+
+  /api/discussion/post:
+    post:
+      summary: "Create a new discussion post"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                doctor_id:
+                  type: integer
+                  example: 3
+                post_title:
+                  type: string
+                  example: "Benefits of Intermittent Fasting"
+                post_content:
+                  type: object
+                  example: {"section": "Content of the post"}
+      responses:
+        '201':
+          description: "Post created successfully"
+        '400':
+          description: "Missing required fields"
+        '500':
+          description: "Database error"
+
+  /api/discussion/posts:
+    get:
+      summary: "Get all discussion posts sorted by most recent"
+      responses:
+        '200':
+          description: "List of posts returned"
+        '500':
+          description: "Database error"
+
+  /api/discussion/posts/Up:
+    get:
+      summary: "Get all discussion posts sorted by upvotes"
+      responses:
+        '200':
+          description: "List of posts returned"
+        '500':
+          description: "Database error"
+
+  /api/discussion/reply:
+    post:
+      summary: "Reply to a discussion post"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                post_id:
+                  type: integer
+                  example: 5
+                user_id:
+                  type: integer
+                  example: 12
+                reply_content:
+                  type: string
+                  example: "Great post, thanks for sharing!"
+      responses:
+        '201':
+          description: "Reply submitted successfully"
+        '400':
+          description: "Missing required fields"
+        '500':
+          description: "Database error"
+
+  /api/discussion/replies/{post_id}:
+    get:
+      summary: "Get all replies for a specific post"
+      parameters:
+        - in: path
+          name: post_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "List of replies returned"
+        '500':
+          description: "Database error"
+
+  /api/discussion/reply-comments:
+    post:
+      summary: "Add a reply to a reply (nested comment)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reply_id:
+                  type: integer
+                  example: 8
+                user_id:
+                  type: integer
+                  example: 12
+                content:
+                  type: string
+                  example: "I totally agree with your reply."
+                parent_comment_id:
+                  type: integer
+                  example: 2
+      responses:
+        '201':
+          description: "Reply comment submitted successfully"
+        '400':
+          description: "Missing required fields"
+        '500':
+          description: "Database error"
+
+  /api/discussion/reply-comments/{reply_id}:
+    get:
+      summary: "Get all comments for a specific reply"
+      parameters:
+        - in: path
+          name: reply_id
+          required: true
+          schema:
+            type: integer
+            example: 8
+      responses:
+        '200':
+          description: "List of reply comments returned"
+        '500':
+          description: "Database error"
+
+  /api/discussion/replies/username/{user_id}:
+    get:
+      summary: "Get the name of a user by user_id"
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 12
+      responses:
+        '200':
+          description: "User name returned"
+        '404':
+          description: "User not found"
+
+  /api/discussion/posts/author/{post_id}:
+    get:
+      summary: "Get the author's name of a post"
+      parameters:
+        - in: path
+          name: post_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "Author name returned"
+        '500':
+          description: "Database error"
+
+  /api/posts/upvote:
+    post:
+      summary: "Toggle upvote on a discussion post"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                post_id:
+                  type: integer
+                  example: 5
+                user_id:
+                  type: integer
+                  example: 12
+      responses:
+        '200':
+          description: "Upvote status toggled"
+        '400':
+          description: "Missing post_id or user_id"
+        '500':
+          description: "Database error"
+
+  /api/posts/upvotes/{post_id}:
+    get:
+      summary: "Get the upvote count and user status for a post"
+      parameters:
+        - in: path
+          name: post_id
+          required: true
+          schema:
+            type: integer
+            example: 5
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 12
+      responses:
+        '200':
+          description: "Upvote count and user status returned"
+        '400':
+          description: "Missing user_id"
+        '500':
+          description: "Database error"
+
+  /api/register/patient:
+    post:
+      summary: "Register a new patient"
+      description: "Registers a new patient user and assigns the nearest pharmacy based on ZIP."
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: patient
+          required: true
+          schema:
+            type: object
+            required:
+              - email
+              - password
+              - first_name
+              - last_name
+              - zip_code
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+              first_name:
+                type: string
+              last_name:
+                type: string
+              address:
+                type: string
+              phone_number:
+                type: string
+              zip_code:
+                type: string
+      responses:
+        201:
+          description: "Patient registered successfully"
+        400:
+          description: "Missing required fields"
+        500:
+          description: "Internal server error"
+
+  /api/register/doctor:
+    post:
+      summary: "Register a new doctor"
+      description: "Registers a new doctor user with license verification."
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: doctor
+          required: true
+          schema:
+            type: object
+            required:
+              - email
+              - password
+              - license_number
+              - first_name
+              - last_name
+              - ssn
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+              license_number:
+                type: string
+              first_name:
+                type: string
+              last_name:
+                type: string
+              address:
+                type: string
+              phone_number:
+                type: string
+              ssn:
+                type: string
+      responses:
+        201:
+          description: "Doctor registered successfully"
+        400:
+          description: "Missing required fields"
+        500:
+          description: "Internal server error"
+
+  /api/register/pharmacy:
+    post:
+      summary: "Register a new pharmacy"
+      description: "Registers a new pharmacy with initial drug prices set to zero."
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: pharmacy
+          required: true
+          schema:
+            type: object
+            required:
+              - email
+              - password
+              - name
+              - address
+              - phone_number
+              - license_number
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+              name:
+                type: string
+              address:
+                type: string
+              zip_code:
+                type: string
+              phone_number:
+                type: string
+              license_number:
+                type: string
+      responses:
+        201:
+          description: "Pharmacy registered successfully"
+        400:
+          description: "Missing required fields"
+        500:
+          description: "Internal server error"
