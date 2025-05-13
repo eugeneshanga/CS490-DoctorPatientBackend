@@ -33,7 +33,7 @@ def get_doctor_payments():
             return jsonify({"error": "Doctor not found for given user_id"}), 404
         doctor_id = doctor["doctor_id"]
 
-        # Retrieve all payments for the doctor by joining with patients for additional details
+        # Retrieve all payments for the doctor by joining with patients for additional details.
         sql = """
             SELECT pd.payment_id, p.first_name, p.last_name, pd.amount, pd.is_fulfilled, pd.payment_date
             FROM payments_doctor pd
