@@ -30,14 +30,13 @@ app = Flask(__name__)
 swagger = Swagger(app, template_file='swagger.yaml')
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
-yaml_path = os.path.join(base_dir, 'swagger.yaml') 
+yaml_path = os.path.join(base_dir, 'swagger.yaml')
 
 
 @app.route('/debug-images')
 def debug_images():
     files = os.listdir('static/images')
     return '<br>'.join(files)
-
 
 
 CORS(app)

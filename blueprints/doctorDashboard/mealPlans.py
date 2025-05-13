@@ -259,4 +259,3 @@ def get_assigned_mealplans():
             connection.close()
         except BaseException:
             pass
-
