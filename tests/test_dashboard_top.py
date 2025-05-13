@@ -38,7 +38,7 @@ def test_get_dashboard_user_info_invalid_user_type(client):
     assert response.status_code == 400
     assert response.get_json()['error'] == 'Invalid user_type'
 
-# Testing update-info interface - error user_type
+# Test update-info interface - error user_type
 
 
 def test_update_user_info_invalid_user_type(client):
